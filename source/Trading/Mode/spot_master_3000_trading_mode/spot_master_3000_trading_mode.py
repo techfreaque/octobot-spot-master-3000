@@ -129,7 +129,8 @@ class SpotMaster3000Making(trading_mode_basis.MatrixMode):
         self.target_portfolio = {}
         self.orders_to_execute = []
         for coin, settings in self.target_settings.items():
-
+            if coin not in self.ctx.symbol and coin != self.ref_market:
+                continue
             if is_ref_market := self.ref_market == coin:
                 asset_value = 1
             else:

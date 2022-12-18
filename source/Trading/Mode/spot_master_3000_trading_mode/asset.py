@@ -54,7 +54,7 @@ class TargetAsset:
             self.portfolio_value, self.current_value
         )
         self.min_buffer_distance_to_current_percent = (
-            self.target_percent - self.min_buffer_allocation - self.current_percent
+            self.target_percent - self.current_percent - self.min_buffer_allocation
         )
         self.max_buffer_distance_to_current_percent = (
             self.target_percent + self.min_buffer_allocation - self.current_percent
@@ -83,7 +83,7 @@ class TargetAsset:
         self.should_change = True
         self.change_side = "sell"
         if self.difference_percent < -self.step_to_sell:
-            if self.max_buffer_distance_to_current_percent > self.step_to_sell:
+            if self.max_buffer_distance_to_current_percent < self.step_to_sell:
                 self.order_percent = -self.max_buffer_distance_to_current_percent
             else:
                 self.order_percent = -self.step_to_sell
