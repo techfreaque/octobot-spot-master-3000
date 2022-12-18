@@ -1,0 +1,6 @@
+{
+  "version": "0.1.0",
+  "origin_package": "Spot-Master-3000",
+  "tentacles": ["SpotMaster3000Mode"],
+  "tentacles-requirements": ["TimeFrameStrategyEvaluator"]
+}
