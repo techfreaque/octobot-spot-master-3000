@@ -13,9 +13,12 @@ import octobot_trading.enums as trading_enums
 
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.exchange_public_data as exchange_public_data
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.trading_mode as trading_mode_basis
-import tentacles.Meta.Keywords.matrix_library.trade_analysis.trade_analysis_activation as trade_analysis_activation
 from .asset import TargetAsset
 
+try:
+    import tentacles.Meta.Keywords.matrix_library.trade_analysis.trade_analysis_activation as trade_analysis_activation
+except (ImportError, ModuleNotFoundError):
+    trade_analysis_activation = None
 try:
     import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 except (ImportError, ModuleNotFoundError):
@@ -57,7 +60,7 @@ class SpotMaster3000Making(trading_mode_basis.MatrixMode):
             return
         await self.calculate_target_portfolio()
         await self.execute_orders()
-        if plotting:
+        if plotting and trade_analysis_activation:
             await trade_analysis_activation.handle_trade_analysis_for_current_candle(
                 ctx, self
             )
