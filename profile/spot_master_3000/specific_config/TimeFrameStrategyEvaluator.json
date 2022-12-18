@@ -1,0 +1,10 @@
+{
+    "default_config": [],
+    "required_candles_count": 200,
+    "required_evaluators": [
+        "*"
+    ],
+    "required_time_frames": [
+        "1d"
+    ]
+}
