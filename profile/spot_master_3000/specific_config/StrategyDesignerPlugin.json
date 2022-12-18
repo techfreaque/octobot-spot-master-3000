@@ -1,0 +1,238 @@
+{
+    "backtesting_analysis_settings": {
+        "display_backtest_details": true,
+        "display_trades_and_positions": true,
+        "plot_best_case_growth_on_backtesting_chart": false,
+        "plot_funding_fees_on_backtesting_chart": false,
+        "plot_pnl_on_backtesting_chart": true,
+        "plot_pnl_on_main_chart": true,
+        "plot_trade_gains_on_backtesting_chart": false,
+        "plot_trade_gains_on_main_chart": false,
+        "plot_win_rate_on_backtesting_chart": false,
+        "plot_wins_and_losses_count_on_backtesting_chart": false
+    },
+    "backtesting_run_settings": {
+        "data_source": "current_bot_data",
+        "end_timestamp": 1671235200000,
+        "exchange_type": "use_current_profile",
+        "start_timestamp": 1514764800000
+    },
+    "current-live-id": 1,
+    "display_settings": {
+        "displayed_elements": [
+            "main-chart",
+            "sub-chart",
+            "backtesting-run-overview",
+            "backtesting-details",
+            "list-of-trades-part"
+        ],
+        "graphs": {
+            "display_unified_tooltip": true,
+            "display_use_log_scale": true,
+            "max_candles_before_line_display": "5000",
+            "max_candles_line_sources": [
+                "close"
+            ]
+        }
+    },
+    "optimization_campaign": {
+        "name": "default spot master 3000"
+    },
+    "optimizer_inputs": {
+        "filters_settings": [],
+        "user_inputs": {
+            "SpotMaster3000Mode_------_coin_selector_allocation_ADA-allocation_ADA": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_ADA",
+                "user_input": "allocation_ADA",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_BNB-allocation_BNB": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_BNB",
+                "user_input": "allocation_BNB",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_BTC-allocation_BTC": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_BTC",
+                "user_input": "allocation_BTC",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_DOGE-allocation_DOGE": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_DOGE",
+                "user_input": "allocation_DOGE",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_DOT-allocation_DOT": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_DOT",
+                "user_input": "allocation_DOT",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_ETH-allocation_ETH": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_ETH",
+                "user_input": "allocation_ETH",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_LTC-allocation_LTC": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_LTC",
+                "user_input": "allocation_LTC",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_USDT-allocation_USDT": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_USDT",
+                "user_input": "allocation_USDT",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_coin_selector_allocation_XMR-allocation_XMR": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_coin_selector_allocation_XMR",
+                "user_input": "allocation_XMR",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings-max_buffer_allocation": {
+                "enabled": true,
+                "tentacle": "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings",
+                "user_input": "max_buffer_allocation",
+                "value": {
+                    "max": 10,
+                    "min": 1,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings-min_buffer_allocation": {
+                "enabled": true,
+                "tentacle": "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings",
+                "user_input": "min_buffer_allocation",
+                "value": {
+                    "max": 10,
+                    "min": 1,
+                    "step": 1
+                }
+            },
+            "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings-step_to_buy": {
+                "enabled": true,
+                "tentacle": "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings",
+                "user_input": "step_to_buy",
+                "value": {
+                    "max": 2,
+                    "min": 0.2,
+                    "step": 0.2
+                }
+            },
+            "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings-step_to_sell": {
+                "enabled": true,
+                "tentacle": "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings",
+                "user_input": "step_to_sell",
+                "value": {
+                    "max": 2,
+                    "min": 0.2,
+                    "step": 0.2
+                }
+            },
+            "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings-threshold_to_buy": {
+                "enabled": true,
+                "tentacle": "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings",
+                "user_input": "threshold_to_buy",
+                "value": {
+                    "max": 5,
+                    "min": 0.5,
+                    "step": 0.5
+                }
+            },
+            "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings-threshold_to_sell": {
+                "enabled": true,
+                "tentacle": "SpotMaster3000Mode_------_spot_master_3000_------_all_coins_settings",
+                "user_input": "threshold_to_sell",
+                "value": {
+                    "max": 5,
+                    "min": 0.5,
+                    "step": 0.5
+                }
+            },
+            "SpotMaster3000Mode_------_spot_master_3000_------_coin_selector-coin_selector": {
+                "enabled": false,
+                "tentacle": "SpotMaster3000Mode_------_spot_master_3000_------_coin_selector",
+                "user_input": "coin_selector",
+                "value": []
+            },
+            "TimeFrameStrategyEvaluator-required_candles_count": {
+                "enabled": false,
+                "tentacle": "TimeFrameStrategyEvaluator",
+                "user_input": "required_candles_count",
+                "value": {
+                    "max": 0,
+                    "min": 0,
+                    "step": 1
+                }
+            },
+            "TimeFrameStrategyEvaluator-required_time_frames": {
+                "enabled": false,
+                "tentacle": "TimeFrameStrategyEvaluator",
+                "user_input": "required_time_frames",
+                "value": []
+            }
+        }
+    },
+    "optimizer_run_settings": {
+        "data_files": "current_bot_data",
+        "db_update_period": "5",
+        "default_crossover_percent": "",
+        "default_generations_count": "",
+        "default_max_mutation_number_multiplier": "",
+        "default_mutation_percent": "",
+        "default_run_per_generation": "",
+        "end_timestamp": 1671235200000,
+        "exchange_type": "use_current_profile",
+        "idle_cores": "0",
+        "max_mutation_probability_percent": "",
+        "max_optimizer_runs": "20000",
+        "min_mutation_probability_percent": "",
+        "mode": "normal",
+        "notify_when_complete": false,
+        "optimizer_id": "1",
+        "queue_size": "10000",
+        "start_timestamp": 1514764800000
+    }
+}

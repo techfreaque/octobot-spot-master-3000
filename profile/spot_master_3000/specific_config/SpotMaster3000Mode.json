@@ -1,55 +1,58 @@
 {
     "activation_method": "once per bar close",
     "coin_selector_allocation_ADA": {
-        "allocation_ADA": 6.66666666666667
+        "allocation_ADA": 10
     },
     "coin_selector_allocation_BNB": {
-        "allocation_BNB": 11.66666666666667
+        "allocation_BNB": 15
     },
     "coin_selector_allocation_BTC": {
-        "allocation_BTC": 20
+        "allocation_BTC": 15
     },
     "coin_selector_allocation_DOGE": {
-        "allocation_DOGE": 11.66666666666667
+        "allocation_DOGE": 15
     },
     "coin_selector_allocation_DOT": {
-        "allocation_DOT": 6.66666666666667
+        "allocation_DOT": 5
     },
     "coin_selector_allocation_ETH": {
-        "allocation_ETH": 10
+        "allocation_ETH": 15
+    },
+    "coin_selector_allocation_EUR": {
+        "allocation_EUR": 5
     },
     "coin_selector_allocation_LTC": {
-        "allocation_LTC": 6.66666666666667
+        "allocation_LTC": 5
     },
     "coin_selector_allocation_USDT": {
-        "allocation_USDT": 20
+        "allocation_USDT": 10
     },
     "coin_selector_allocation_XMR": {
-        "allocation_XMR": 6.66666666666667
+        "allocation_XMR": 5
     },
     "default_config": [
         "TimeFrameStrategyEvaluator"
     ],
-    "enable_trades_plots": false,
+    "enable_trades_plots": true,
     "plot_average_entry": true,
     "plot_balances": true,
     "plot_open_position": true,
     "plot_orders": true,
     "plot_settings": {
-        "plot_portfolio_p": false,
-        "plot_portfolio_ref": false
+        "plot_portfolio_p": true,
+        "plot_portfolio_ref": true
     },
     "required_strategies": [
         "TimeFrameStrategyEvaluator"
     ],
     "spot_master_3000": {
         "all_coins_settings": {
-            "max_buffer_allocation": 50,
-            "min_buffer_allocation": 50,
+            "max_buffer_allocation": 6,
+            "min_buffer_allocation": 10,
             "step_to_buy": 0.2,
             "step_to_sell": 0.2,
-            "threshold_to_buy": 1,
-            "threshold_to_sell": 1
+            "threshold_to_buy": 0.5,
+            "threshold_to_sell": 0.5
         },
         "coin_selector": {
             "coin_selector": [
@@ -61,7 +64,8 @@
                 "ETH",
                 "LTC",
                 "XMR",
-                "DOT"
+                "DOT",
+                "EUR"
             ]
         }
     },
