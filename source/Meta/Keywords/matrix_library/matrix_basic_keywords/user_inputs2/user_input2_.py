@@ -1,4 +1,4 @@
-from octobot_trading.modes.script_keywords.basic_keywords.user_inputs import user_input
+import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
 import octobot_trading.constants as trading_constants
 
 
@@ -15,7 +15,7 @@ async def user_input2(
     show_in_optimizer=True,
     order=None,
 ):
-    return await user_input(
+    return await user_inputs.user_input(
         maker.ctx,
         name + f" ({indicator.config_path_short})",
         input_type=input_type,
@@ -38,7 +38,7 @@ async def set_candles_history_size(
     show_in_optimizer=False,
     order=999,
 ):
-    return await user_input(
+    return await user_inputs.user_input(
         ctx,
         name,
         "int",

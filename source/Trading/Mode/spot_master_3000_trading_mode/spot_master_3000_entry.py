@@ -37,14 +37,7 @@ class SpotMaster3000ModeProducer(SpotMaster3000Making):
         # elif not self.trading_mode.get_initialized_trading_pair_by_bot_id(
         #     ctx.symbol, ctx.time_frame
         # ):
-        #     if (
-        #         await self.get_backtesting_mode(ctx)
-        #         == strategy_builder_enums.BacktestingMode.normal_backtesting_mode
-        #     ):
-        #         # first back-testing candle
-        #         await self.build_strategies_backtesting_cache(ctx)
-        #     else:
-        #         await self.execute_in_trade_analysis_mode(ctx)
+        # await self.build_strategies_backtesting_cache(ctx)
         # else:
         #     # back-testing on all the other candles
         #     await self.trade_strategies_backtesting(ctx)

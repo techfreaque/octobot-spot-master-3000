@@ -1,13 +1,7 @@
 import octobot_commons.enums as commons_enums
-import octobot_trading.exchange_data.ohlcv.candles_manager as candles_manager
-from octobot_trading.modes.script_keywords import basic_keywords
-from octobot_trading.modes.scripted_trading_mode import abstract_scripted_trading_mode
-
-from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities import (
-    start_measure_time,
-    end_measure_time,
-    end_measure_live_time,
-)
+import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
+import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
 
 
 class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer):
@@ -36,23 +30,25 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
         )
 
     async def build_and_trade_strategies_live(self, ctx):
-        m_time = start_measure_time()
+        m_time = utilities.start_measure_time()
 
-        end_measure_live_time(ctx, m_time, " matrix mode - live trading")
+        utilities.end_measure_live_time(ctx, m_time, " matrix mode - live trading")
 
     async def build_strategies_backtesting_cache(self, ctx):
-        s_time = start_measure_time(" matrix mode - building backtesting cache")
+        s_time = utilities.start_measure_time(
+            " matrix mode - building backtesting cache"
+        )
 
-        end_measure_time(
+        utilities.end_measure_time(
             s_time,
             f" matrix mode - building strategy for "
             f"{ctx.time_frame} {len(self.any_trading_timestamps)} trades",
         )
 
     async def trade_strategies_backtesting(self, ctx):
-        m_time = start_measure_time()
+        m_time = utilities.start_measure_time()
 
-        end_measure_time(
+        utilities.end_measure_time(
             m_time,
             " matrix mode - warning backtesting candle took longer than expected",
             min_duration=1,

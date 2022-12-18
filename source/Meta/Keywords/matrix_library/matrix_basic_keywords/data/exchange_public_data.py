@@ -3,13 +3,8 @@ from octobot_trading import exchange_data
 import octobot_backtesting.api as backtesting_api
 import octobot_commons.enums as commons_enums
 import octobot_trading.api as trading_api
-from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2 import (
-    user_input2,
-)
-from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities import (
-    start_measure_time,
-    end_measure_time,
-)
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2 as user_inputs2
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
 
 
 async def user_select_candle_source_name(
@@ -38,7 +33,7 @@ async def user_select_candle_source_name(
     if enable_volume:
         available_data_src.append("volume")
 
-    source_name = await user_input2(
+    source_name = await user_inputs2.user_input2(
         maker,
         indicator,
         name,
@@ -60,7 +55,7 @@ async def get_candles_(maker, source_name="close", time_frame=None, symbol=None)
             return maker.candles[symbol][time_frame][source_name]
     except KeyError:
         pass
-    sm_time = start_measure_time()
+    sm_time = utilities.start_measure_time()
     if symbol not in maker.candles:
         maker.candles[symbol] = {}
     if time_frame not in maker.candles[symbol]:
@@ -72,7 +67,7 @@ async def get_candles_(maker, source_name="close", time_frame=None, symbol=None)
         symbol=symbol,
         max_history=True,
     )
-    end_measure_time(
+    utilities.end_measure_time(
         sm_time,
         f" strategy maker - loading candle: {source_name}, {symbol}, {time_frame}",
         min_duration=1,
@@ -145,8 +140,8 @@ async def _get_candles_from_name(
                     maker, source_name="low", time_frame=time_frame, symbol=symbol
                 ),
             )
-        except ImportError:
-            raise RuntimeError("CandlesUtil tentacle is required to use HL2")
+        except ImportError as error:
+            raise RuntimeError("CandlesUtil tentacle is required to use HL2") from error
     if source_name == "hlc3":
         try:
             from tentacles.Evaluator.Util.candles_util import CandlesUtil
@@ -162,8 +157,10 @@ async def _get_candles_from_name(
                     maker, source_name="close", time_frame=time_frame, symbol=symbol
                 ),
             )
-        except ImportError:
-            raise RuntimeError("CandlesUtil tentacle is required to use HLC3")
+        except ImportError as error:
+            raise RuntimeError(
+                "CandlesUtil tentacle is required to use HLC3"
+            ) from error
     if source_name == "ohlc4":
         try:
             from tentacles.Evaluator.Util.candles_util import CandlesUtil
@@ -182,8 +179,10 @@ async def _get_candles_from_name(
                     maker, source_name="close", time_frame=time_frame, symbol=symbol
                 ),
             )
-        except ImportError:
-            raise RuntimeError("CandlesUtil tentacle is required to use OHLC4")
+        except ImportError as error:
+            raise RuntimeError(
+                "CandlesUtil tentacle is required to use OHLC4"
+            ) from error
     if "Heikin Ashi" in source_name:
         try:
             from tentacles.Evaluator.Util.candles_util import CandlesUtil
@@ -214,8 +213,10 @@ async def _get_candles_from_name(
                 return haHigh
             if source_name == "Heikin Ashi low":
                 return haLow
-        except ImportError:
-            raise RuntimeError("CandlesUtil tentacle is required to use Heikin Ashi")
+        except ImportError as error:
+            raise RuntimeError(
+                "CandlesUtil tentacle is required to use Heikin Ashi"
+            ) from error
 
 
 async def _load_backtesting_candles_manager(
