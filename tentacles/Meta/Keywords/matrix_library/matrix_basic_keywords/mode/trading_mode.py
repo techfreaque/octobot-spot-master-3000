@@ -1,8 +1,9 @@
 import octobot_commons.enums as commons_enums
+import octobot_trading.exchange_data.ohlcv.candles_manager as candles_manager
 from octobot_trading.modes.script_keywords import basic_keywords
 from octobot_trading.modes.scripted_trading_mode import abstract_scripted_trading_mode
 
-from tentacles.Meta.Keywords.matrix_library.strategies_builder.key_words.tools.utilities import (
+from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities import (
     start_measure_time,
     end_measure_time,
     end_measure_live_time,
@@ -13,6 +14,8 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
     def __init__(self, channel, config, trading_mode, exchange_manager):
         super().__init__(channel, config, trading_mode, exchange_manager)
         self.trade_analysis_activated = False
+        self.candles_manager: candles_manager.CandlesManager = None
+        self.ctx = None
 
     async def _register_and_apply_required_user_inputs(self, context):
         if context.exchange_manager.is_future:

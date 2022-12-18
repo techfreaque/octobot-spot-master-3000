@@ -1,12 +1,14 @@
-from tentacles.Meta.Keywords.matrix_library.strategies_builder.key_words.user_inputs2 import (
+from octobot_trading import exchange_data
+import octobot_backtesting.api as backtesting_api
+import octobot_commons.enums as commons_enums
+import octobot_trading.api as trading_api
+from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2 import (
     user_input2,
 )
-from tentacles.Meta.Keywords.matrix_library.strategies_builder.key_words.tools.utilities import (
+from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities import (
     start_measure_time,
     end_measure_time,
 )
-
-import tentacles.Meta.Keywords.scripting_library.data.reading.exchange_public_data as exchange_public_data
 
 
 async def user_select_candle_source_name(
@@ -97,30 +99,21 @@ async def _get_candles_from_name(
 ):
     symbol = symbol or maker.ctx.symbol
     time_frame = time_frame or maker.ctx.time_frame
+    maker.candles_manager = maker.candles_manager or await _load_candles_manager(
+        maker.ctx, symbol, time_frame, max_history
+    )
     if source_name == "close":
-        return await exchange_public_data.Close(
-            maker.ctx, symbol=symbol, time_frame=time_frame, max_history=max_history
-        )
+        return maker.candles_manager.get_symbol_close_candles(-1)
     if source_name == "open":
-        return await exchange_public_data.Open(
-            maker.ctx, symbol=symbol, time_frame=time_frame, max_history=max_history
-        )
+        return maker.candles_manager.get_symbol_open_candles(-1)
     if source_name == "high":
-        return await exchange_public_data.High(
-            maker.ctx, symbol=symbol, time_frame=time_frame, max_history=max_history
-        )
+        return maker.candles_manager.get_symbol_high_candles(-1)
     if source_name == "low":
-        return await exchange_public_data.Low(
-            maker.ctx, symbol=symbol, time_frame=time_frame, max_history=max_history
-        )
+        return maker.candles_manager.get_symbol_low_candles(-1)
     if source_name == "volume":
-        return await exchange_public_data.Volume(
-            maker.ctx, symbol=symbol, time_frame=time_frame, max_history=max_history
-        )
+        return maker.candles_manager.get_symbol_volume_candles(-1)
     if source_name == "time":
-        return await exchange_public_data.Time(
-            maker.ctx, symbol=symbol, time_frame=time_frame, max_history=max_history
-        )
+        return maker.candles_manager.get_symbol_time_candles(-1)
     if source_name == "hl2":
         try:
             from tentacles.Evaluator.Util.candles_util import CandlesUtil
@@ -204,3 +197,50 @@ async def _get_candles_from_name(
                 return haLow
         except ImportError:
             raise RuntimeError("CandlesUtil tentacle is required to use Heikin Ashi")
+
+
+async def _load_backtesting_candles_manager(
+    exchange_manager,
+    symbol: str,
+    time_frame: str,
+) -> exchange_data.CandlesManager:
+    start_time = backtesting_api.get_backtesting_starting_time(
+        exchange_manager.exchange.backtesting
+    )
+    end_time = backtesting_api.get_backtesting_ending_time(
+        exchange_manager.exchange.backtesting
+    )
+    ohlcv_data: list = await exchange_manager.exchange.exchange_importers[0].get_ohlcv(
+        exchange_name=exchange_manager.exchange_name,
+        symbol=symbol,
+        time_frame=commons_enums.TimeFrames(time_frame),
+    )
+    chronological_candles: list = sorted(ohlcv_data, key=lambda candle: candle[0])
+    full_candles_history = [
+        ohlcv[-1]
+        for ohlcv in chronological_candles
+        if start_time <= ohlcv[0] <= end_time
+    ]
+    candles_manager = exchange_data.CandlesManager(
+        max_candles_count=len(full_candles_history)
+    )
+    await candles_manager.initialize()
+    candles_manager.replace_all_candles(full_candles_history)
+    return candles_manager
+
+
+async def _load_candles_manager(
+    context, symbol: str, time_frame: str, max_history: bool = False
+) -> exchange_data.CandlesManager:
+    if max_history and context.exchange_manager.is_backtesting:
+        return await _load_backtesting_candles_manager(
+            context.exchange_manager,
+            symbol,
+            time_frame,
+        )
+    return trading_api.get_symbol_candles_manager(
+        trading_api.get_symbol_data(
+            context.exchange_manager, symbol, allow_creation=False
+        ),
+        time_frame,
+    )

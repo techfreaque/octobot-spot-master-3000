@@ -12,6 +12,7 @@ import octobot_trading.api.symbol_data as symbol_data
 import octobot_trading.enums as trading_enums
 
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.exchange_public_data as exchange_public_data
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.trading_mode as trading_mode_basis
 import tentacles.Meta.Keywords.matrix_library.strategies_builder.strategy_making.strategy_building as strategy_building
 import tentacles.Meta.Keywords.matrix_library.trade_analysis.trade_analysis_activation as trade_analysis_activation
 from .asset import TargetAsset
@@ -22,7 +23,7 @@ except (ImportError, ModuleNotFoundError):
     plotting = None
 
 
-class SpotMaster3000Making(strategy_building.StrategyMaking):
+class SpotMaster3000Making(trading_mode_basis.MatrixMode):
     target_settings: dict = {}
     coins_to_trade: list = []
     ctx = None

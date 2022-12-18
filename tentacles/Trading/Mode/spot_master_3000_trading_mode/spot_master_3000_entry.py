@@ -1,5 +1,6 @@
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import octobot_trading.enums as trading_enums
+from .spot_master_3000_trading_mode import SpotMaster3000Making
 
 
 class SpotMaster3000Mode(abstract_scripted_trading_mode.AbstractScriptedTradingMode):
@@ -11,7 +12,7 @@ class SpotMaster3000Mode(abstract_scripted_trading_mode.AbstractScriptedTradingM
 
         self.register_script_module(profile_trading_script)
         self.register_script_module(backtesting_script, live=False)
-        
+
     def get_mode_producer_classes(self) -> list:
         return [SpotMaster3000ModeProducer]
 
