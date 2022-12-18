@@ -13,7 +13,6 @@ import octobot_trading.enums as trading_enums
 
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.exchange_public_data as exchange_public_data
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.trading_mode as trading_mode_basis
-import tentacles.Meta.Keywords.matrix_library.strategies_builder.strategy_making.strategy_building as strategy_building
 import tentacles.Meta.Keywords.matrix_library.trade_analysis.trade_analysis_activation as trade_analysis_activation
 from .asset import TargetAsset
 
