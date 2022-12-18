@@ -56,22 +56,28 @@ async def get_candles_(maker, source_name="close", time_frame=None, symbol=None)
     symbol = symbol or maker.ctx.symbol
     time_frame = time_frame or maker.ctx.time_frame
     try:
-        return maker.candles[symbol][source_name]
+        if maker.ctx.exchange_manager.is_backtesting:
+            return maker.candles[symbol][time_frame][source_name]
     except KeyError:
-        sm_time = start_measure_time()
-        if symbol not in maker.candles:
-            maker.candles[symbol] = {}
-        maker.candles[symbol][source_name] = await _get_candles_from_name(
-            maker,
-            source_name=source_name,
-            time_frame=time_frame,
-            symbol=symbol,
-            max_history=True,
-        )
-        end_measure_time(
-            sm_time, f" strategy maker - loading candle: {source_name}", min_duration=1
-        )
-    return maker.candles[symbol][source_name]
+        pass
+    sm_time = start_measure_time()
+    if symbol not in maker.candles:
+        maker.candles[symbol] = {}
+    if time_frame not in maker.candles[symbol]:
+        maker.candles[symbol][time_frame] = {}
+    maker.candles[symbol][time_frame][source_name] = await _get_candles_from_name(
+        maker,
+        source_name=source_name,
+        time_frame=time_frame,
+        symbol=symbol,
+        max_history=True,
+    )
+    end_measure_time(
+        sm_time,
+        f" strategy maker - loading candle: {source_name}, {symbol}, {time_frame}",
+        min_duration=1,
+    )
+    return maker.candles[symbol][time_frame][source_name]
 
 
 async def get_current_candle(
@@ -87,9 +93,7 @@ async def get_current_candle(
     )
     try:
         if isinstance(candles, numpy.ndarray):
-            current_index = numpy.where(times == maker.ctx.trigger_value[0])[0][
-                0
-            ]
+            current_index = numpy.where(times == maker.ctx.trigger_value[0])[0][0]
         else:
             current_index = times.index(maker.ctx.trigger_value[0])
     except (ValueError, KeyError, IndexError) as error:
@@ -105,21 +109,30 @@ async def _get_candles_from_name(
 ):
     symbol = symbol or maker.ctx.symbol
     time_frame = time_frame or maker.ctx.time_frame
-    maker.candles_manager = maker.candles_manager or await _load_candles_manager(
-        maker.ctx, symbol, time_frame, max_history
-    )
+    if symbol not in maker.candles_manager:
+        maker.candles_manager[symbol] = {}
+    if time_frame not in maker.candles_manager[symbol]:
+        maker.candles_manager[symbol][time_frame] = {}
+    if maker.ctx.exchange_manager.is_backtesting:
+        maker.candles_manager[symbol][time_frame] = maker.candles_manager[symbol][
+            time_frame
+        ] or await _load_candles_manager(maker.ctx, symbol, time_frame, max_history)
+    else:
+        maker.candles_manager[symbol][time_frame] = await _load_candles_manager(
+            maker.ctx, symbol, time_frame, max_history
+        )
     if source_name == "close":
-        return maker.candles_manager.get_symbol_close_candles(-1)
+        return maker.candles_manager[symbol][time_frame].get_symbol_close_candles(-1)
     if source_name == "open":
-        return maker.candles_manager.get_symbol_open_candles(-1)
+        return maker.candles_manager[symbol][time_frame].get_symbol_open_candles(-1)
     if source_name == "high":
-        return maker.candles_manager.get_symbol_high_candles(-1)
+        return maker.candles_manager[symbol][time_frame].get_symbol_high_candles(-1)
     if source_name == "low":
-        return maker.candles_manager.get_symbol_low_candles(-1)
+        return maker.candles_manager[symbol][time_frame].get_symbol_low_candles(-1)
     if source_name == "volume":
-        return maker.candles_manager.get_symbol_volume_candles(-1)
+        return maker.candles_manager[symbol][time_frame].get_symbol_volume_candles(-1)
     if source_name == "time":
-        return maker.candles_manager.get_symbol_time_candles(-1)
+        return maker.candles_manager[symbol][time_frame].get_symbol_time_candles(-1)
     if source_name == "hl2":
         try:
             from tentacles.Evaluator.Util.candles_util import CandlesUtil

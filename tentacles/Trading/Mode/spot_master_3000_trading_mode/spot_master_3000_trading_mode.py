@@ -42,10 +42,9 @@ class SpotMaster3000Making(trading_mode_basis.MatrixMode):
     step_to_buy: float = None
     max_buffer_allocation: float = None
     min_buffer_allocation: float = None
+    spot_master_name = "spot_master_3000"
 
     async def build_and_trade_strategies_live(self, ctx):
-        await self.init_trade_analysis(ctx)
-
         self.ctx = ctx
         # await cancel_orders(self.ctx)
         await self.coin_selector()
@@ -60,11 +59,13 @@ class SpotMaster3000Making(trading_mode_basis.MatrixMode):
             return
         await self.calculate_target_portfolio()
         await self.execute_orders()
-        if plotting and trade_analysis_activation:
+        if plotting:
+            await self.plot_portfolio()
+        if trade_analysis_activation:
+            await self.init_trade_analysis(ctx)
             await trade_analysis_activation.handle_trade_analysis_for_current_candle(
                 ctx, self
             )
-            await self.plot_portfolio()
 
     async def execute_orders(self):
         for order_to_execute in self.orders_to_execute:
@@ -169,14 +170,16 @@ class SpotMaster3000Making(trading_mode_basis.MatrixMode):
         all_coins = self.get_coins_from__all_symbols(
             symbol_data.get_config_symbols(self.ctx.exchange_manager.config, True)
         )
-        spot_master_name = "spot_master_name"
         await user_inputs.user_input(
             self.ctx,
-            spot_master_name,
+            self.spot_master_name,
             commons_enums.UserInputTypes.OBJECT,
             def_val=None,
             title="SpotMaster 3000 settings",
-            other_schema_values={"grid_columns": 12, "description": ""},
+            other_schema_values={
+                "grid_columns": 12,
+                "description": "make sure the allocation for each coin adds up to 100%",
+            },
         )
         coin_selector_name = "coin_selector"
         await user_inputs.user_input(
@@ -188,6 +191,7 @@ class SpotMaster3000Making(trading_mode_basis.MatrixMode):
             other_schema_values={
                 "grid_columns": 12,
             },
+            parent_input_name=self.spot_master_name,
         )
         self.coins_to_trade = await user_inputs.user_input(
             self.ctx,
@@ -211,6 +215,7 @@ class SpotMaster3000Making(trading_mode_basis.MatrixMode):
             other_schema_values={
                 "grid_columns": 12,
             },
+            parent_input_name=self.spot_master_name,
         )
         self.threshold_to_sell = await user_inputs.user_input(
             self.ctx,

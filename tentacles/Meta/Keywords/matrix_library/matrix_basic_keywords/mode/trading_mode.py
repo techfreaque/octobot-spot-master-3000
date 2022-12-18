@@ -14,7 +14,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
     def __init__(self, channel, config, trading_mode, exchange_manager):
         super().__init__(channel, config, trading_mode, exchange_manager)
         self.trade_analysis_activated = False
-        self.candles_manager: candles_manager.CandlesManager = None
+        self.candles_manager: dict = {}
         self.ctx = None
         self.candles: dict = {}
 
