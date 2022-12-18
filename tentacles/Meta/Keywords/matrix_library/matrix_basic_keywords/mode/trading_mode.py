@@ -16,6 +16,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
         self.trade_analysis_activated = False
         self.candles_manager: candles_manager.CandlesManager = None
         self.ctx = None
+        self.candles: dict = {}
 
     async def _register_and_apply_required_user_inputs(self, context):
         if context.exchange_manager.is_future:

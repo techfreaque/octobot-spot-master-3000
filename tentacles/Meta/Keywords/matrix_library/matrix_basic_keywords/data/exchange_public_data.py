@@ -1,3 +1,4 @@
+import numpy
 from octobot_trading import exchange_data
 import octobot_backtesting.api as backtesting_api
 import octobot_commons.enums as commons_enums
@@ -85,10 +86,15 @@ async def get_current_candle(
         maker, source_name=source_name, time_frame=time_frame, symbol=symbol
     )
     try:
-        current_index = times.index(maker.ctx.trigger_cache_timestamp)
-    except ValueError as error:
+        if isinstance(candles, numpy.ndarray):
+            current_index = numpy.where(times == maker.ctx.trigger_value[0])[0][
+                0
+            ]
+        else:
+            current_index = times.index(maker.ctx.trigger_value[0])
+    except (ValueError, KeyError, IndexError) as error:
         raise ValueError(
-            f"Price for the candle (time: {maker.ctx.trigger_cache_timestamp}, "
+            f"Price for the candle (time: {maker.ctx.trigger_value[0]}, "
             f"{symbol}, {time_frame})"
         ) from error
     return candles[current_index]
