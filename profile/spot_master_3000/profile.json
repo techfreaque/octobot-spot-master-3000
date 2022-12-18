@@ -45,6 +45,11 @@
                 "pairs": [
                     "DOT/USDT"
                 ]
+            },
+            "Tether": {
+                "pairs": [
+                    "EUR/USDT"
+                ]
             }
         },
         "exchanges": {
