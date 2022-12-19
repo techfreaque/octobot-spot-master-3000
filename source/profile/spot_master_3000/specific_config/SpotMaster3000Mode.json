@@ -4,25 +4,31 @@
         "allocation_ADA": 10
     },
     "coin_selector_allocation_BNB": {
-        "allocation_BNB": 15
+        "allocation_BNB": 10
     },
     "coin_selector_allocation_BTC": {
-        "allocation_BTC": 15
+        "allocation_BTC": 10
     },
     "coin_selector_allocation_DOGE": {
-        "allocation_DOGE": 15
+        "allocation_DOGE": 10
     },
     "coin_selector_allocation_DOT": {
         "allocation_DOT": 5
     },
     "coin_selector_allocation_ETH": {
-        "allocation_ETH": 15
+        "allocation_ETH": 10
     },
     "coin_selector_allocation_EUR": {
         "allocation_EUR": 5
     },
+    "coin_selector_allocation_LINK": {
+        "allocation_LINK": 10
+    },
     "coin_selector_allocation_LTC": {
-        "allocation_LTC": 5
+        "allocation_LTC": 10
+    },
+    "coin_selector_allocation_TRX": {
+        "allocation_TRX": 10
     },
     "coin_selector_allocation_USDT": {
         "allocation_USDT": 10
@@ -30,17 +36,20 @@
     "coin_selector_allocation_XMR": {
         "allocation_XMR": 5
     },
+    "coin_selector_allocation_XTZ": {
+        "allocation_XTZ": 10
+    },
     "default_config": [
         "TimeFrameStrategyEvaluator"
     ],
-    "enable_trades_plots": true,
+    "enable_trades_plots": false,
     "plot_average_entry": true,
     "plot_balances": true,
     "plot_open_position": true,
     "plot_orders": true,
     "plot_settings": {
-        "plot_portfolio_p": true,
-        "plot_portfolio_ref": true
+        "plot_portfolio_p": false,
+        "plot_portfolio_ref": false
     },
     "required_strategies": [
         "TimeFrameStrategyEvaluator"
@@ -60,12 +69,12 @@
                 "BNB",
                 "BTC",
                 "ADA",
+                "LINK",
                 "DOGE",
                 "ETH",
                 "LTC",
-                "XMR",
-                "DOT",
-                "EUR"
+                "TRX",
+                "XTZ"
             ]
         }
     },

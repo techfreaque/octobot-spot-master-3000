@@ -2,6 +2,7 @@
     "config": {
         "crypto-currencies": {
             "BNB": {
+                "enabled": true,
                 "pairs": [
                     "BNB/USDT"
                 ]
@@ -18,7 +19,14 @@
                     "ADA/USDT"
                 ]
             },
+            "Chainlink": {
+                "enabled": true,
+                "pairs": [
+                    "LINK/USDT"
+                ]
+            },
             "Dogecoin": {
+                "enabled": true,
                 "pairs": [
                     "DOGE/USDT"
                 ]
@@ -35,20 +43,15 @@
                     "LTC/USDT"
                 ]
             },
-            "Monero": {
-                "pairs": [
-                    "XMR/USDT"
-                ]
-            },
-            "Polkadot": {
+            "TRON": {
                 "enabled": true,
                 "pairs": [
-                    "DOT/USDT"
+                    "TRX/USDT"
                 ]
             },
-            "Tether": {
+            "Tezos": {
                 "pairs": [
-                    "EUR/USDT"
+                    "XTZ/USDT"
                 ]
             }
         },
