@@ -10,12 +10,11 @@
 3. press on register and install (might take a while)
 
 ### import profile
-1. download the profile (latest version below)
 2. go to my-octobot-url.com/profile
 3. click on any profile
 4. click the "import a profile" button at the bottom right
-5. click on "import a local profile"
-6. select the downloaded profile
+5. paste the profile url (latest below) 
+6. click on "import" (might take a while)
 
 ### duplicate the profile to make it your own
 duplicate the default spot master 3000 profile so your profile will not get overwritten in future updates
