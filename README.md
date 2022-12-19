@@ -2,6 +2,9 @@
 - This is a spot trading mode and a profile for OctoBot.
 - automatically balances your portfolio based on the settings
 
+## backtesting results
+Backtesting result for the default settings are in the screenshots folder in this repository.
+
 ## Installation
 ### install trading mode
 1. To be able to install packages, set a password and enable require password in my-octobot-url.com/accounts -> Interfaces -> Web
