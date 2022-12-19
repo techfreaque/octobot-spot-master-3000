@@ -1,6 +1,24 @@
 # octobot spot master 3000
 - This is a spot trading mode and a profile for OctoBot.
-- automatically balances your portfolio based on the settings
+- automatically balances your portfolio based on your settings
+- benefit from arbitrage opportunities between coins and currencies.
+- default settings outperform the market average (based on past data)
+
+## how to use it
+1. follow the installation instructions below
+2. research the coins/currencies you want to hold, the gains will highly depend on your choice
+2. enable your coins in the profile -> currencies settings
+3. go to: my-octobot-url.com/config_tentacle?name=SpotMaster3000Mode
+4. define the allocation for each currency (make sure it adds up to 100%) 
+5. make sure the reference market (for example USDT) allocation is big enough (5%-30%)
+6. customize settings - there are some more settings that will drastically change the outcome. I haven't tested much jet, so be creative.
+7. backtest your settings 
+
+## share your settings
+if you find good settings, it would be awesome if you could share it with use\
+
+
+
 
 ## backtesting results
 Backtesting result for the default settings are in the screenshots folder in this repository.
@@ -22,15 +40,17 @@ Backtesting result for the default settings are in the screenshots folder in thi
 ### duplicate the profile to make it your own
 duplicate the default spot master 3000 profile so your profile will not get overwritten in future updates
 
+## customize settings
+To edit the settings either:
+- go to: my-octobot-url.com/config_tentacle?name=SpotMaster3000Mode
+- or configure the trading mode from the profile page
+
 ## update
 1. go to my-octobot-url.com/advanced/tentacles
 2. select the Spot-Master-3000 package
 3. scroll to the bottom and press "update selected tentacles"
 
-## customize settings
-To edit the settings either:
-- go to: my-octobot-url.com/config_tentacle?name=SpotMaster3000Mode
-- or configure the trading mode from the profile page
+
 
 ## Questions, issues, and feature requests
 Post it here: https://github.com/techfreaque/octobot-spot-master-3000/issues
