@@ -31,8 +31,8 @@ To edit the settings either:
 - or configure the trading mode from the profile page
 
 ## download latest trading mode (installable tentacle version)
-https://github.com/techfreaque/octobot-spot-master-3000/blob/main/releases/latest/any_platform.zip?raw=true
+https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/latest/any_platform.zip
 
 
 ## download latest profile (importable profile)
-https://github.com/techfreaque/octobot-spot-master-3000/blob/main/profile/spot_master_3000.zip?raw=true
+https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/profile/spot_master_3000.zip
