@@ -69,4 +69,4 @@ https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/rele
 
 
 ## download latest profile (importable profile)
-https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/trading_mode/profile/latest/spot_master_3000_profile.zip
+https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/profile/latest/spot_master_3000_profile.zip
