@@ -1,5 +1,9 @@
 import decimal
 
+from tentacles.Trading.Mode.spot_master_3000_trading_mode.enums import (
+    SpotMasterOrderTypes,
+)
+
 
 class TargetAsset:
     should_change = False
@@ -21,11 +25,15 @@ class TargetAsset:
         step_to_buy,
         max_buffer_allocation,
         min_buffer_allocation,
+        limit_buy_offset,
+        limit_sell_offset,
         coin,
         ref_market,
+        order_type,
         is_ref_market=False,
     ):
         self.coin = coin
+        self.order_type = order_type
         self.max_buffer_allocation = convert_percent_to_decimal(max_buffer_allocation)
         self.min_buffer_allocation = convert_percent_to_decimal(min_buffer_allocation)
         if is_ref_market:
@@ -66,9 +74,13 @@ class TargetAsset:
         self.threshold_to_buy = convert_percent_to_decimal(threshold_to_buy)
         self.step_to_sell = convert_percent_to_decimal(step_to_sell)
         self.step_to_buy = convert_percent_to_decimal(step_to_buy)
+        self.limit_buy_offset = (
+            convert_percent_to_decimal(limit_buy_offset) if limit_buy_offset else None
+        )
+        self.limit_sell_offset = (
+            convert_percent_to_decimal(limit_sell_offset) if limit_sell_offset else None
+        )
         self.check_if_should_change()
-        if self.current_percent > 1:
-            test = 1
 
     def check_if_should_change(self):
         if self.difference_percent < 0:
@@ -93,7 +105,8 @@ class TargetAsset:
             self.order_percent, self.portfolio_value
         )
         self.order_amount = convert_value_to_amount(self.order_value, self.asset_value)
-        self.order_execute_price = self.asset_value * decimal.Decimal(str(1.01))
+        if self.order_type == SpotMasterOrderTypes.LIMIT.value:
+            self.order_execute_price = self.asset_value * (1 + self.limit_sell_offset)
 
     def prepare_buy_order(self):
         self.should_change = True
@@ -109,9 +122,8 @@ class TargetAsset:
             self.order_percent, self.portfolio_value
         )
         self.order_amount = convert_value_to_amount(self.order_value, self.asset_value)
-        self.order_execute_price = self.asset_value * decimal.Decimal(str(0.99))
-
-    # def finalize_prepare_order(self):
+        if self.order_type == SpotMasterOrderTypes.LIMIT.value:
+            self.order_execute_price = self.asset_value * (1 - self.limit_buy_offset)
 
 
 def convert_percent_to_decimal(percent) -> decimal.Decimal:

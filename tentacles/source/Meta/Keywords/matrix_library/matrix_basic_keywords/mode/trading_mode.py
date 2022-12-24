@@ -1,13 +1,39 @@
 import octobot_commons.enums as commons_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
+from tentacles.Meta.Keywords.scripting_library.data.writing import plotting
 
 
 class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer):
+    plot_settings_name = "plot_settings"
+    default_live_plotting_mode: str = (
+        matrix_enums.LivePlottingModes.PLOT_RECORDING_MODE.value
+    )
+    default_backtest_plotting_mode: str = (
+        matrix_enums.BacktestPlottingModes.DISABLE_PLOTTING.value
+    )
+    live_plotting_modes: list = [
+        matrix_enums.LivePlottingModes.DISABLE_PLOTTING.value,
+        matrix_enums.LivePlottingModes.REPLOT_VISIBLE_HISTORY.value,
+        matrix_enums.LivePlottingModes.PLOT_RECORDING_MODE.value,
+    ]
+    backtest_plotting_modes: list = [
+        matrix_enums.BacktestPlottingModes.ENABLE_PLOTTING.value,
+        matrix_enums.BacktestPlottingModes.DISABLE_PLOTTING.value,
+    ]
+    
+    backtest_plotting_mode: str = None
+    live_plotting_mode: str = None
+    
+    enable_plot: bool = False
+
+    # todo remove
+    live_recording_mode: bool = None
+
     def __init__(self, channel, config, trading_mode, exchange_manager):
         super().__init__(channel, config, trading_mode, exchange_manager)
-        self.trade_analysis_activated = False
         self.candles_manager: dict = {}
         self.ctx = None
         self.candles: dict = {}
@@ -54,13 +80,66 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             min_duration=1,
         )
 
-    async def init_trade_analysis(self, ctx):
-        self.trade_analysis_activated = await basic_keywords.user_input(
-            ctx,
-            "enable_trades_plots",
-            "boolean",
-            title="enable trades/orders/positions plotting function "
-            "(very slow together with backtesting plots)",
-            def_val=True,
+    async def init_plot_settings(self):
+        await basic_keywords.user_input(
+            self.ctx,
+            self.plot_settings_name,
+            commons_enums.UserInputTypes.OBJECT,
+            def_val=None,
+            title="Plot settings",
             show_in_summary=False,
+            show_in_optimizer=False,
         )
+        self.backtest_plotting_mode = await basic_keywords.user_input(
+            self.ctx,
+            "backtest_plotting_mode",
+            commons_enums.UserInputTypes.OPTIONS,
+            title="Backtest plotting mode",
+            def_val=self.default_backtest_plotting_mode,
+            options=self.backtest_plotting_modes,
+            show_in_summary=False,
+            show_in_optimizer=False,
+            parent_input_name=self.plot_settings_name,
+        )
+        if self.exchange_manager.is_backtesting:
+            if (
+                self.backtest_plotting_mode
+                == matrix_enums.BacktestPlottingModes.DISABLE_PLOTTING.value
+            ):
+                self.enable_plot = False
+            elif (
+                self.backtest_plotting_mode
+                == matrix_enums.BacktestPlottingModes.ENABLE_PLOTTING.value
+            ):
+                self.enable_plot = True
+        else:
+            self.live_plotting_mode = await basic_keywords.user_input(
+                self.ctx,
+                "live_plotting_mode",
+                commons_enums.UserInputTypes.OPTIONS,
+                title="Live plotting mode",
+                def_val=self.default_live_plotting_mode,
+                options=self.live_plotting_modes,
+                show_in_summary=False,
+                show_in_optimizer=False,
+                parent_input_name=self.plot_settings_name,
+            )
+            if (
+                self.live_plotting_mode
+                == matrix_enums.LivePlottingModes.PLOT_RECORDING_MODE.value
+            ):
+                self.live_recording_mode = True
+                self.enable_plot = True
+            elif (
+                self.live_plotting_mode
+                == matrix_enums.LivePlottingModes.DISABLE_PLOTTING.value
+            ):
+                self.enable_plot = False
+                self.live_recording_mode = True
+                plotting.disable_candles_plot(self.ctx)
+            elif (
+                self.live_plotting_modes
+                == matrix_enums.LivePlottingModes.REPLOT_VISIBLE_HISTORY.value
+            ):
+                self.live_recording_mode = False
+                self.enable_plot = True
