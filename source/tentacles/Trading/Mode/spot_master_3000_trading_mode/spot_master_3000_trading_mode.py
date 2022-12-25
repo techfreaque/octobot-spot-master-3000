@@ -62,9 +62,10 @@ class SpotMaster3000Making(
         await self.init_plot_portfolio()
         if self.enable_plot:
             await self.plot_portfolio()
-            await trade_analysis_activation.handle_trade_analysis_for_current_candle(
-                ctx, self.plot_settings_name
-            )
+            if trade_analysis_activation:
+                await trade_analysis_activation.handle_trade_analysis_for_current_candle(
+                    ctx, self.plot_settings_name
+                )
 
     async def execute_orders(self):
         if SpotMasterOrderTypes.LIMIT.value == self.order_type:
