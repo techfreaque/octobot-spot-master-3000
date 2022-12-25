@@ -1,82 +1,80 @@
 {
     "activation_method": "once per bar close",
-    "coin_selector_allocation_ADA": {
-        "allocation_ADA": 10
+    "allocation_for_ADA": {
+        "allocation_ADA": 8.1818
     },
-    "coin_selector_allocation_BNB": {
-        "allocation_BNB": 10
+    "allocation_for_BNB": {
+        "allocation_BNB": 8.1818
     },
-    "coin_selector_allocation_BTC": {
-        "allocation_BTC": 10
+    "allocation_for_BTC": {
+        "allocation_BTC": 8.1818
     },
-    "coin_selector_allocation_DOGE": {
-        "allocation_DOGE": 10
+    "allocation_for_DOGE": {
+        "allocation_DOGE": 8.1818
     },
-    "coin_selector_allocation_DOT": {
-        "allocation_DOT": 5
+    "allocation_for_DOT": {
+        "allocation_DOT": 8.1818
     },
-    "coin_selector_allocation_ETH": {
-        "allocation_ETH": 10
+    "allocation_for_ETH": {
+        "allocation_ETH": 8.1818
     },
-    "coin_selector_allocation_EUR": {
-        "allocation_EUR": 5
+    "allocation_for_LINK": {
+        "allocation_LINK": 8.1818
     },
-    "coin_selector_allocation_LINK": {
-        "allocation_LINK": 10
+    "allocation_for_LTC": {
+        "allocation_LTC": 8.1818
     },
-    "coin_selector_allocation_LTC": {
-        "allocation_LTC": 10
+    "allocation_for_TRX": {
+        "allocation_TRX": 8.1818
     },
-    "coin_selector_allocation_TRX": {
-        "allocation_TRX": 10
-    },
-    "coin_selector_allocation_USDT": {
+    "allocation_for_USDT": {
         "allocation_USDT": 10
     },
-    "coin_selector_allocation_XMR": {
-        "allocation_XMR": 5
+    "allocation_for_XMR": {
+        "allocation_XMR": 8.1818
     },
-    "coin_selector_allocation_XTZ": {
-        "allocation_XTZ": 10
+    "allocation_for_XTZ": {
+        "allocation_XTZ": 8.1818
     },
     "default_config": [
         "TimeFrameStrategyEvaluator"
     ],
-    "enable_trades_plots": false,
-    "plot_average_entry": true,
-    "plot_balances": true,
-    "plot_open_position": true,
-    "plot_orders": true,
     "plot_settings": {
-        "plot_portfolio_p": false,
-        "plot_portfolio_ref": false
+        "backtest_plotting_mode": "enable backtest plotting",
+        "live_plotting_mode": "plot recording mode",
+        "plot_average_entry": false,
+        "plot_balances": false,
+        "plot_open_position": false,
+        "plot_orders": true,
+        "plot_portfolio_p": true,
+        "plot_portfolio_ref": true
     },
     "required_strategies": [
         "TimeFrameStrategyEvaluator"
     ],
     "spot_master_3000": {
-        "all_coins_settings": {
-            "max_buffer_allocation": 6,
-            "min_buffer_allocation": 10,
-            "step_to_buy": 0.2,
-            "step_to_sell": 0.2,
-            "threshold_to_buy": 0.5,
-            "threshold_to_sell": 0.5
-        },
-        "coin_selector": {
-            "coin_selector": [
-                "USDT",
-                "BNB",
-                "BTC",
-                "ADA",
-                "LINK",
-                "DOGE",
-                "ETH",
-                "LTC",
-                "TRX",
-                "XTZ"
-            ]
-        }
-    },
-    "trade-analysis": {}
+        "limit_buy_offset": 0.5,
+        "limit_sell_offset": 0.5,
+        "max_buffer_allocation": 6,
+        "min_buffer_allocation": 10,
+        "order_type": "Limit Orders",
+        "selected_coins": [
+            "USDT",
+            "BNB",
+            "BTC",
+            "ADA",
+            "LINK",
+            "DOGE",
+            "ETH",
+            "LTC",
+            "XMR",
+            "DOT",
+            "TRX",
+            "XTZ"
+        ],
+        "step_to_buy": 0.2,
+        "step_to_sell": 0.2,
+        "threshold_to_buy": 0.5,
+        "threshold_to_sell": 0.5
+    }
 }
