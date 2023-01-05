@@ -5,6 +5,7 @@ import octobot_commons.enums as commons_enums
 import octobot_trading.api as trading_api
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2 as user_inputs2
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
+import tentacles.Meta.Keywords.scripting_library.data.reading.exchange_public_data as _exchange_public_data
 
 
 async def user_select_candle_source_name(
@@ -80,23 +81,27 @@ async def get_current_candle(
 ) -> float:
     symbol = symbol or maker.ctx.symbol
     time_frame = time_frame or maker.ctx.time_frame
-    times = await get_candles_(
-        maker, source_name="time", time_frame=time_frame, symbol=symbol
+    if maker.ctx.exchange_manager.is_backtesting:
+        times = await get_candles_(
+            maker, source_name="time", time_frame=time_frame, symbol=symbol
+        )
+        candles = await get_candles_(
+            maker, source_name=source_name, time_frame=time_frame, symbol=symbol
+        )
+        try:
+            if isinstance(candles, numpy.ndarray):
+                current_index = numpy.where(times == maker.ctx.trigger_value[0])[0][0]
+            else:
+                current_index = times.index(maker.ctx.trigger_value[0])
+        except (ValueError, KeyError, IndexError) as error:
+            raise ValueError(
+                f"Price for the candle (time: {maker.ctx.trigger_value[0]}, "
+                f"{symbol}, {time_frame})"
+            ) from error
+        return candles[current_index]
+    return await _exchange_public_data.current_candle_price(
+        maker.ctx, symbol=symbol, time_frame=time_frame
     )
-    candles = await get_candles_(
-        maker, source_name=source_name, time_frame=time_frame, symbol=symbol
-    )
-    try:
-        if isinstance(candles, numpy.ndarray):
-            current_index = numpy.where(times == maker.ctx.trigger_value[0])[0][0]
-        else:
-            current_index = times.index(maker.ctx.trigger_value[0])
-    except (ValueError, KeyError, IndexError) as error:
-        raise ValueError(
-            f"Price for the candle (time: {maker.ctx.trigger_value[0]}, "
-            f"{symbol}, {time_frame})"
-        ) from error
-    return candles[current_index]
 
 
 async def _get_candles_from_name(

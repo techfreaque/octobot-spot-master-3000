@@ -23,10 +23,10 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
         matrix_enums.BacktestPlottingModes.ENABLE_PLOTTING.value,
         matrix_enums.BacktestPlottingModes.DISABLE_PLOTTING.value,
     ]
-    
+
     backtest_plotting_mode: str = None
     live_plotting_mode: str = None
-    
+
     enable_plot: bool = False
 
     # todo remove
@@ -89,7 +89,13 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             title="Plot settings",
             show_in_summary=False,
             show_in_optimizer=False,
+            other_schema_values={
+                "grid_columns": 4,
+            },
         )
+        await self.init_plotting_modes(self.plot_settings_name, self.plot_settings_name)
+
+    async def init_plotting_modes(self, live_parent_input, backtesting_parent_input):
         self.backtest_plotting_mode = await basic_keywords.user_input(
             self.ctx,
             "backtest_plotting_mode",
@@ -99,7 +105,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             options=self.backtest_plotting_modes,
             show_in_summary=False,
             show_in_optimizer=False,
-            parent_input_name=self.plot_settings_name,
+            parent_input_name=backtesting_parent_input,
         )
         if self.exchange_manager.is_backtesting:
             if (
@@ -122,7 +128,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
                 options=self.live_plotting_modes,
                 show_in_summary=False,
                 show_in_optimizer=False,
-                parent_input_name=self.plot_settings_name,
+                parent_input_name=live_parent_input,
             )
             if (
                 self.live_plotting_mode
@@ -138,7 +144,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
                 self.live_recording_mode = True
                 plotting.disable_candles_plot(self.ctx)
             elif (
-                self.live_plotting_modes
+                self.live_plotting_mode
                 == matrix_enums.LivePlottingModes.REPLOT_VISIBLE_HISTORY.value
             ):
                 self.live_recording_mode = False

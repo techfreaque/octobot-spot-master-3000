@@ -256,7 +256,6 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
 
     async def plot_portfolio(self):
         if plotting:
-
             if self.enable_plot_portfolio_ref or self.enable_plot_portfolio_p:
                 key = "b-" if self.ctx.exchange_manager.is_backtesting else "l-"
                 if self.enable_plot_portfolio_ref:

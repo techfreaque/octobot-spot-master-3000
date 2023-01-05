@@ -28,22 +28,3 @@ async def user_input2(
         order=order,
         path=indicator.config_path,
     )
-
-
-async def set_candles_history_size(
-    ctx,
-    def_val=trading_constants.DEFAULT_CANDLE_HISTORY_SIZE,
-    name=trading_constants.CONFIG_CANDLES_HISTORY_SIZE_TITLE,
-    show_in_summary=False,
-    show_in_optimizer=False,
-    order=999,
-):
-    return await user_inputs.user_input(
-        ctx,
-        name,
-        "int",
-        def_val,
-        show_in_summary=show_in_summary,
-        show_in_optimizer=show_in_optimizer,
-        order=order,
-    )
