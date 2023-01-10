@@ -2,6 +2,7 @@ import typing
 
 import octobot_commons.enums as commons_enums
 import octobot_commons.symbols.symbol_util as symbol_util
+import octobot_commons.symbols.symbol as commons_symbol
 
 import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
 import octobot_trading.api.symbol_data as symbol_data
@@ -18,7 +19,7 @@ except (ImportError, ModuleNotFoundError):
 
 class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
     target_settings: dict = {}
-    coins_to_trade: list = []
+    coins_to_trade: typing.List[str] = []
     ref_market: str = None
     threshold_to_sell: float = None
     threshold_to_buy: float = None
@@ -28,12 +29,17 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
     min_buffer_allocation: float = None
     limit_buy_offset: float = None
     limit_sell_offset: float = None
+    limit_max_age_in_bars: int = None
     spot_master_name = "spot_master_3000"
     order_type = None
-    available_coins: list = None
+    available_coins: typing.List[str] = []
+    available_symbols: typing.List[str] = []
+    round_orders: bool = None
+    round_orders_max_value: float = None
+
     enable_plot_portfolio_p: bool = None
     enable_plot_portfolio_ref: bool = None
-    live_plotting_modes: list = [
+    live_plotting_modes: typing.List[str] = [
         matrix_enums.LivePlottingModes.DISABLE_PLOTTING.value,
         matrix_enums.LivePlottingModes.PLOT_RECORDING_MODE.value,
     ]
@@ -42,7 +48,7 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
     async def init_spot_master_settings(self, ctx) -> None:
         self.ctx = None
         self.ctx = ctx
-        self.set_available_coins()
+        self.set_available_coins_and_symbols()
         await user_inputs.user_input(
             self.ctx,
             self.spot_master_name,
@@ -73,15 +79,19 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
         await self.init_balancing_settings()
         await self.init_coin_settings()
 
-    def set_available_coins(self) -> None:
-        self.available_coins = self.get_coins_from__all_symbols(
-            symbol_data.get_config_symbols(self.ctx.exchange_manager.config, True)
+    def set_available_coins_and_symbols(self) -> None:
+        coins: set = set()
+        self.available_symbols: typing.List[str] = symbol_data.get_config_symbols(
+            self.ctx.exchange_manager.config, True
         )
+        for symbol in self.available_symbols:
+            symbol_obj = symbol_util.parse_symbol(symbol)
+            coins.add(symbol_obj.quote)
+            coins.add(symbol_obj.base)
+        self.available_coins = list(coins)
 
-    async def init_balancing_settings(self):
-
+    async def init_balancing_settings(self) -> None:
         await self.init_order_type_settings()
-
         self.threshold_to_sell = await user_inputs.user_input(
             self.ctx,
             "threshold_to_sell",
@@ -149,7 +159,7 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             },
         )
 
-    async def init_coin_settings(self):
+    async def init_coin_settings(self) -> None:
         self.target_settings = {}
         for coin in self.coins_to_trade:
             coin_selector_allocation_name = f"allocation_for_{coin}"
@@ -176,7 +186,7 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                 ),
             }
 
-    async def init_order_type_settings(self):
+    async def init_order_type_settings(self) -> None:
         self.order_type = await user_inputs.user_input(
             self.ctx,
             "order_type",
@@ -218,21 +228,53 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                     "grid_columns": 4,
                 },
             )
+            self.limit_max_age_in_bars = await user_inputs.user_input(
+                self.ctx,
+                "limit_max_age",
+                commons_enums.UserInputTypes.INT,
+                def_val=3,
+                min_val=1,
+                title="Maximum bars to wait for a limit order to get filled",
+                parent_input_name=self.spot_master_name,
+                other_schema_values={
+                    "grid_columns": 4,
+                    "description": "If the order is still unfilled after the time "
+                    "passed, the order will get cancelled and recreated "
+                    "based on current price",
+                },
+            )
+        self.round_orders = await user_inputs.user_input(
+            self.ctx,
+            "round_orders",
+            commons_enums.UserInputTypes.BOOLEAN,
+            def_val=False,
+            title="Enable rounding up to minimum order value",
+            parent_input_name=self.spot_master_name,
+            other_schema_values={
+                "grid_columns": 4,
+                "description": "If enabled it will round up buy/sell orders to "
+                "the minimum order value. (see below)",
+            },
+        )
+        if self.round_orders:
+            self.round_orders_max_value = await user_inputs.user_input(
+                self.ctx,
+                "round_orders_max_value",
+                commons_enums.UserInputTypes.FLOAT,
+                def_val=50,
+                min_val=0,
+                max_val=100,
+                title="% of the minimum order value to round up order",
+                parent_input_name=self.spot_master_name,
+                other_schema_values={
+                    "grid_columns": 4,
+                    "description": "For example if the min value to open a order is "
+                    "10 USDT and you have this setting to 40. It will round up orders"
+                    " with value bigger than 4 USDT up to 10 USDT.",
+                },
+            )
 
-    def get_coins_from__all_symbols(self, symbols) -> typing.Tuple[str, str]:
-        self.ref_market = self.ctx.exchange_manager.config["trading"][
-            "reference-market"
-        ]
-        coins = [self.ref_market]
-        for symbol in symbols:
-            symbol_obj = symbol_util.parse_symbol(symbol)
-            if symbol_obj.quote not in coins:
-                coins.append(symbol_obj.quote)
-            if symbol_obj.base not in coins:
-                coins.append(symbol_obj.base)
-        return coins
-
-    async def init_plot_portfolio(self):
+    async def init_plot_portfolio(self) -> None:
         self.enable_plot_portfolio_p = await user_inputs.user_input(
             self.ctx,
             "plot_portfolio_p",
@@ -254,7 +296,7 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.plot_settings_name,
         )
 
-    async def plot_portfolio(self):
+    async def plot_portfolio(self) -> None:
         if plotting:
             if self.enable_plot_portfolio_ref or self.enable_plot_portfolio_p:
                 key = "b-" if self.ctx.exchange_manager.is_backtesting else "l-"
@@ -289,3 +331,36 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                             shift_to_open_candle_time=False,
                             mode="markers",
                         )
+
+    def _try_converting_with_multiple_pairs(self, currency, quantity):
+        # try with two pairs
+        # for example: BTC/ETH      ->    BTC/USDT
+        # first covert ETH -> BTC and then BTC -> USDT
+        for symbol in symbol_data.get_config_symbols(
+            self.portfolio_manager.exchange_manager.config, True
+        ):
+            if symbol.startswith(currency):
+                first_ref_market = symbol_util.parse_symbol(symbol).quote
+                second_symbol = (
+                    f"{first_ref_market}/{self.portfolio_manager.reference_market}"
+                )
+                if (
+                    all(
+                        self.portfolio_manager.exchange_manager.symbol_exists(s)
+                        for s in (symbol, second_symbol)
+                    )
+                    and currency not in self.missing_currency_data_in_exchange
+                ):
+                    if first_ref_market_value := (
+                        self.convert_currency_value_using_last_prices(
+                            quantity, currency, first_ref_market
+                        )
+                    ):
+                        if ref_market_value := (
+                            self.convert_currency_value_using_last_prices(
+                                first_ref_market_value,
+                                first_ref_market,
+                                self.portfolio_manager.reference_market,
+                            )
+                        ):
+                            return ref_market_value

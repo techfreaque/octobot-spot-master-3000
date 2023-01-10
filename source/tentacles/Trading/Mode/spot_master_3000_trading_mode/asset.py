@@ -6,7 +6,7 @@ from tentacles.Trading.Mode.spot_master_3000_trading_mode.enums import (
 
 
 class TargetAsset:
-    should_change = False
+    should_change: bool = False
     change_side: str = None
     order_percent: decimal.Decimal = None
     order_value: decimal.Decimal = None
@@ -15,74 +15,106 @@ class TargetAsset:
 
     def __init__(
         self,
-        total_value,
-        target_percent,
-        portfolio,
-        asset_value,
-        threshold_to_sell,
-        threshold_to_buy,
-        step_to_sell,
-        step_to_buy,
-        max_buffer_allocation,
-        min_buffer_allocation,
-        limit_buy_offset,
-        limit_sell_offset,
-        coin,
-        ref_market,
-        order_type,
-        is_ref_market=False,
+        total_value: decimal.Decimal,
+        target_percent: decimal.Decimal,
+        portfolio: dict,
+        asset_value: decimal.Decimal,
+        threshold_to_sell: decimal.Decimal,
+        threshold_to_buy: decimal.Decimal,
+        step_to_sell: decimal.Decimal,
+        step_to_buy: decimal.Decimal,
+        max_buffer_allocation: decimal.Decimal,
+        min_buffer_allocation: decimal.Decimal,
+        limit_buy_offset: decimal.Decimal,
+        limit_sell_offset: decimal.Decimal,
+        coin: str,
+        ref_market: str,
+        symbol: str,
+        order_type: str,
+        open_order_size: decimal.Decimal,
+        is_ref_market: bool = False,
     ):
-        self.coin = coin
-        self.order_type = order_type
-        self.max_buffer_allocation = convert_percent_to_decimal(max_buffer_allocation)
-        self.min_buffer_allocation = convert_percent_to_decimal(min_buffer_allocation)
-        if is_ref_market:
-            self.symbol = ref_market
-        else:
-            self.symbol = f"{coin}/{ref_market}"
-        self.is_ref_market = is_ref_market
-        self.asset_value = decimal.Decimal(str(asset_value))
+        self.open_order_size: decimal.Decimal = open_order_size
+        self.coin: str = coin
+        self.order_type: str = order_type
+        self.max_buffer_allocation: decimal.Decimal = convert_percent_to_decimal(
+            max_buffer_allocation
+        )
+        self.min_buffer_allocation: decimal.Decimal = convert_percent_to_decimal(
+            min_buffer_allocation
+        )
+        self.symbol: str = symbol
+        self.ref_market: str = ref_market
+        self.is_ref_market: str = is_ref_market
+        self.asset_value: decimal.Decimal = decimal.Decimal(str(asset_value))
         try:
             self.current_amount = portfolio[coin].total
         except KeyError:
-            self.current_amount = decimal.Decimal(0)
-
-        self.portfolio_value = total_value
-        self.target_percent = convert_percent_to_decimal(target_percent)
-        self.target_value = convert_percent_to_value(
+            self.current_amount = decimal.Decimal("0")
+        self.portfolio_value: decimal.Decimal = total_value
+        self.target_percent: decimal.Decimal = convert_percent_to_decimal(
+            target_percent
+        )
+        self.target_value: decimal.Decimal = convert_percent_to_value(
             self.target_percent, self.portfolio_value
         )
-        self.target_amount = convert_value_to_amount(
+        self.target_amount: decimal.Decimal = convert_value_to_amount(
             self.target_value, self.asset_value
         )
-        self.current_value = convert_amount_to_value(
+        self.current_value: decimal.Decimal = convert_amount_to_value(
             self.current_amount, self.asset_value
         )
-        self.current_percent = convert_value_to_percent(
+        self.current_percent: decimal.Decimal = convert_value_to_percent(
             self.portfolio_value, self.current_value
         )
-        self.min_buffer_distance_to_current_percent = (
-            self.target_percent - self.current_percent - self.min_buffer_allocation
+        self.current_amount_if_orders_filled: decimal.Decimal = (
+            open_order_size + self.current_amount
         )
-        self.max_buffer_distance_to_current_percent = (
-            self.target_percent + self.min_buffer_allocation - self.current_percent
+        self.current_value_if_orders_filled: decimal.Decimal = convert_amount_to_value(
+            self.current_amount_if_orders_filled, self.asset_value
         )
-        self.difference_amount = self.target_amount - self.current_amount
-        self.difference_value = self.target_value - self.current_value
-        self.difference_percent = self.target_percent - self.current_percent
-        self.threshold_to_sell = convert_percent_to_decimal(threshold_to_sell)
-        self.threshold_to_buy = convert_percent_to_decimal(threshold_to_buy)
-        self.step_to_sell = convert_percent_to_decimal(step_to_sell)
-        self.step_to_buy = convert_percent_to_decimal(step_to_buy)
-        self.limit_buy_offset = (
+        self.current_percent_if_orders_filled: decimal.Decimal = (
+            convert_value_to_percent(
+                self.portfolio_value, self.current_value_if_orders_filled
+            )
+        )
+
+        self.min_buffer_distance_to_current_percent: decimal.Decimal = (
+            self.target_percent
+            - self.current_percent_if_orders_filled
+            - self.min_buffer_allocation
+        )
+        self.max_buffer_distance_to_current_percent: decimal.Decimal = (
+            self.target_percent
+            + self.min_buffer_allocation
+            - self.current_percent_if_orders_filled
+        )
+        self.difference_amount: decimal.Decimal = (
+            self.target_amount - self.current_amount_if_orders_filled
+        )
+        self.difference_value: decimal.Decimal = (
+            self.target_value - self.current_value_if_orders_filled
+        )
+        self.difference_percent: decimal.Decimal = (
+            self.target_percent - self.current_percent_if_orders_filled
+        )
+        self.threshold_to_sell: decimal.Decimal = convert_percent_to_decimal(
+            threshold_to_sell
+        )
+        self.threshold_to_buy: decimal.Decimal = convert_percent_to_decimal(
+            threshold_to_buy
+        )
+        self.step_to_sell: decimal.Decimal = convert_percent_to_decimal(step_to_sell)
+        self.step_to_buy: decimal.Decimal = convert_percent_to_decimal(step_to_buy)
+        self.limit_buy_offset: decimal.Decimal = (
             convert_percent_to_decimal(limit_buy_offset) if limit_buy_offset else None
         )
-        self.limit_sell_offset = (
+        self.limit_sell_offset: decimal.Decimal = (
             convert_percent_to_decimal(limit_sell_offset) if limit_sell_offset else None
         )
         self.check_if_should_change()
 
-    def check_if_should_change(self):
+    def check_if_should_change(self) -> None:
         if self.difference_percent < 0:
             if self.difference_percent < -(self.threshold_to_sell):
                 self.prepare_sell_order()
@@ -91,16 +123,16 @@ class TargetAsset:
             if self.difference_percent > (self.threshold_to_buy):
                 self.prepare_buy_order()
 
-    def prepare_sell_order(self):
+    def prepare_sell_order(self) -> None:
         self.should_change = True
         self.change_side = "sell"
-        if self.difference_percent < -self.step_to_sell:
-            if self.max_buffer_distance_to_current_percent < self.step_to_sell:
+        if -self.difference_percent > self.step_to_sell:
+            if -self.max_buffer_distance_to_current_percent > self.step_to_sell:
                 self.order_percent = -self.max_buffer_distance_to_current_percent
             else:
-                self.order_percent = -self.step_to_sell
+                self.order_percent = self.step_to_sell
         else:
-            self.order_percent = self.difference_percent
+            self.order_percent = -self.difference_percent
         self.order_value = convert_percent_to_value(
             self.order_percent, self.portfolio_value
         )
@@ -108,7 +140,7 @@ class TargetAsset:
         if self.order_type == SpotMasterOrderTypes.LIMIT.value:
             self.order_execute_price = self.asset_value * (1 + self.limit_sell_offset)
 
-    def prepare_buy_order(self):
+    def prepare_buy_order(self) -> None:
         self.should_change = True
         self.change_side = "buy"
         if self.difference_percent > self.step_to_buy:

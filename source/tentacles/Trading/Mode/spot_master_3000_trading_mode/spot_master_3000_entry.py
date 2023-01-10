@@ -27,10 +27,10 @@ class SpotMaster3000Mode(abstract_scripted_trading_mode.AbstractScriptedTradingM
 
 
 class SpotMaster3000ModeProducer(SpotMaster3000Making):
-    async def _pre_script_call(self, context):
+    async def _pre_script_call(self, context) -> None:
         await self.make_strategy(context)
 
-    async def make_strategy(self, ctx):
+    async def make_strategy(self, ctx) -> None:
         # if not ctx.exchange_manager.is_backtesting:
         #     # live trading
         await self.build_and_trade_strategies_live(ctx)
