@@ -1,8 +1,9 @@
 import decimal
+from math import ceil
 import time
 import typing
 import octobot_commons.enums as commons_enums
-from octobot_commons.symbols.symbol_util import parse_symbol
+import octobot_commons.symbols.symbol_util as symbol_util
 
 import octobot_trading.api.portfolio as portfolio
 import octobot_trading.enums as trading_enums
@@ -11,11 +12,10 @@ import octobot_trading.modes.script_keywords.context_management as context_manag
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.exchange_public_data as exchange_public_data
 import tentacles.Meta.Keywords.scripting_library.orders.cancelling as cancelling
 import tentacles.Meta.Keywords.scripting_library.orders.order_types as order_types
-from tentacles.Trading.Mode.spot_master_3000_trading_mode.enums import (
-    SpotMasterOrderTypes,
-)
+import tentacles.Trading.Mode.spot_master_3000_trading_mode.enums as spot_master_enums
+
 import tentacles.Trading.Mode.spot_master_3000_trading_mode.spot_master_3000_trading_mode_settings as spot_master_3000_trading_mode_settings
-from .asset import TargetAsset
+import tentacles.Trading.Mode.spot_master_3000_trading_mode.asset as asset
 
 try:
     import tentacles.Meta.Keywords.matrix_library.trade_analysis.trade_analysis_activation as trade_analysis_activation
@@ -31,12 +31,12 @@ class SpotMaster3000Making(
     open_orders: list = []
     ctx: context_management.Context = None
     currencies_values: dict = {}
-    target_portfolio: dict = {}
+    target_portfolio: typing.Dict[str, asset.TargetAsset] = {}
     portfolio: dict = {}
     total_value: decimal.Decimal = None
     ref_market: str = None
     ref_market_asset: str = None
-    orders_to_execute: typing.List[TargetAsset] = []
+    orders_to_execute: typing.Dict[str, asset.TargetAsset] = []
     threshold_to_sell: float = None
     threshold_to_buy: float = None
     step_to_sell: float = None
@@ -77,13 +77,16 @@ class SpotMaster3000Making(
                 )
 
     async def execute_orders(self) -> None:
-        for order_to_execute in self.orders_to_execute:
+        for order_to_execute in self.orders_to_execute.values():
             if order_to_execute.symbol == self.ctx.symbol:
-                available_amount, amount = self.get_available_amount(order_to_execute)
-                if self.order_type == SpotMasterOrderTypes.LIMIT.value:
+                # available_amount, amount = self.get_available_amount(order_to_execute)
+                if (
+                    self.order_type
+                    == spot_master_enums.SpotMasterOrderTypes.LIMIT.value
+                ):
                     if amount := self.round_up_order_amount_if_enabled(
-                        available_amount=available_amount,
-                        order_amount=amount,
+                        available_amount=order_to_execute.available_amount,
+                        order_amount=order_to_execute.order_amount_available,
                         order_price=order_to_execute.order_execute_price,
                         symbol=order_to_execute.symbol,
                         order_side=order_to_execute.change_side,
@@ -91,13 +94,16 @@ class SpotMaster3000Making(
                         await order_types.limit(
                             self.ctx,
                             side=order_to_execute.change_side,
-                            amount=amount,
+                            amount=order_to_execute.order_amount_available,
                             offset=f"@{order_to_execute.order_execute_price}",
                         )
-                elif self.order_type == SpotMasterOrderTypes.MARKET.value:
+                elif (
+                    self.order_type
+                    == spot_master_enums.SpotMasterOrderTypes.MARKET.value
+                ):
                     if amount := self.round_up_order_amount_if_enabled(
-                        available_amount=available_amount,
-                        order_amount=amount,
+                        available_amount=order_to_execute.available_amount,
+                        order_amount=order_to_execute.order_amount_available,
                         order_price=order_to_execute.asset_value,
                         symbol=order_to_execute.symbol,
                         order_side=order_to_execute.change_side,
@@ -113,44 +119,65 @@ class SpotMaster3000Making(
             "reference-market"
         ]
         self.target_portfolio = {}
-        self.orders_to_execute = []
-
+        self.orders_to_execute = {}
         await self.cancel_expired_orders()
         await self.load_orders()
         for coin, settings in self.target_settings.items():
-            open_order_size: decimal.Decimal = decimal.Decimal("0")
             available_symbols: list = self.get_available_symbols(coin)
-            is_ref_market: bool = False
-            converted_total_value: decimal.Decimal = None
+            _asset = None
             if not available_symbols:
-                if is_ref_market := self.ref_market == coin:
-                    symbol: str = coin
-                    this_ref_market: str = coin
-                    asset_value: float = 1
-                else:
+                if not (
+                    _asset := self.calculate_reference_market_asset(settings, coin)
+                ):
+                    # should never happen
                     self.ctx.logger.error(f"No trading pair available for {coin}")
                     continue
             else:
-                symbol: str = available_symbols[0]
-                this_ref_market: str = parse_symbol(symbol).quote
-                if this_ref_market != self.ref_market:
-                    potential_conversion_symbols: list = [
-                        f"{this_ref_market}/{self.ref_market}",
-                        f"{self.ref_market}/{this_ref_market}",
-                    ]
-                    conversion_value: float = None
-                    for _symbol in potential_conversion_symbols:
-                        if value := await self.get_asset_value(_symbol):
-                            conversion_value = value
-                            break
+                order_to_execute, _asset = await self.calculate_asset(
+                    settings,
+                    coin,
+                    available_symbols,
+                )
+                if order_to_execute:
+                    self.orders_to_execute[coin] = order_to_execute
+            self.target_portfolio[coin] = _asset
+
+    async def calculate_asset(
+        self, settings, coin, available_symbols
+    ) -> asset.TargetAsset or None:
+        """
+        it computes the TargetAsset for all available symbols
+        and pickes the one with most available percent of portfolio to execute trades on
+        """
+        potential_order: asset.TargetAsset = None
+        _asset: asset.TargetAsset = None
+        for symbol in available_symbols:
+            this_ref_market: str = symbol_util.parse_symbol(symbol).quote
+            converted_total_value: decimal.Decimal = None
+            open_order_size: decimal.Decimal = decimal.Decimal("0")
+            if this_ref_market != self.ref_market:
+                potential_conversion_symbols: list = [
+                    f"{this_ref_market}/{self.ref_market}",
+                    f"{self.ref_market}/{this_ref_market}",
+                ]
+                conversion_value: float = None
+                for _symbol in potential_conversion_symbols:
+                    if value := await self.get_asset_value(_symbol):
+                        conversion_value = value
+                        break
+                try:
                     converted_total_value = self.total_value / decimal.Decimal(
                         str(conversion_value)
                     )
-
-                open_order_size = self.get_open_order_quantity(symbol)
-                if not (asset_value := await self.get_asset_value(symbol)):
-                    continue
-            asset = TargetAsset(
+                except Exception as e:
+                    test = e
+            open_order_size = self.get_open_order_quantity(symbol)
+            if not (asset_value := await self.get_asset_value(symbol)):
+                self.ctx.logger.error(
+                    f"Not able to determine asset  value for {coin} with {symbol}"
+                )
+                continue
+            _asset = asset.TargetAsset(
                 total_value=converted_total_value or self.total_value,
                 target_percent=settings["allocation"],
                 portfolio=self.portfolio,
@@ -161,7 +188,7 @@ class SpotMaster3000Making(
                 step_to_buy=self.step_to_buy,
                 max_buffer_allocation=self.max_buffer_allocation,
                 min_buffer_allocation=self.min_buffer_allocation,
-                is_ref_market=is_ref_market,
+                is_ref_market=False,
                 coin=coin,
                 limit_buy_offset=self.limit_buy_offset,
                 limit_sell_offset=self.limit_sell_offset,
@@ -170,9 +197,48 @@ class SpotMaster3000Making(
                 ref_market=this_ref_market,
                 open_order_size=open_order_size,
             )
-            if asset.should_change and symbol == self.ctx.symbol:
-                self.orders_to_execute.append(asset)
-            self.target_portfolio[coin] = asset
+            if potential_order:
+                # TODO use ref market that is closer or higher to optimal %
+                # use the pair with more available funds
+                if _asset.available_amount > potential_order.available_amount:
+                    potential_order = _asset
+            else:
+                potential_order = _asset
+        _asset = potential_order or _asset
+        if not (
+            potential_order.should_change and potential_order.symbol == self.ctx.symbol
+        ):
+            potential_order = None
+        return potential_order, _asset
+
+    def calculate_reference_market_asset(
+        self, settings, coin
+    ) -> asset.TargetAsset or None:
+        open_order_size: decimal.Decimal = decimal.Decimal("0")  # TODO
+        if self.ref_market == coin:
+            symbol: str = coin
+            this_ref_market: str = coin
+            asset_value: float = 1
+            return asset.TargetAsset(
+                total_value=self.total_value,
+                target_percent=settings["allocation"],
+                portfolio=self.portfolio,
+                asset_value=asset_value,
+                threshold_to_sell=self.threshold_to_sell,
+                threshold_to_buy=self.threshold_to_buy,
+                step_to_sell=self.step_to_sell,
+                step_to_buy=self.step_to_buy,
+                max_buffer_allocation=self.max_buffer_allocation,
+                min_buffer_allocation=self.min_buffer_allocation,
+                is_ref_market=True,
+                coin=coin,
+                limit_buy_offset=self.limit_buy_offset,
+                limit_sell_offset=self.limit_sell_offset,
+                order_type=self.order_type,
+                symbol=symbol,
+                ref_market=this_ref_market,
+                open_order_size=open_order_size,
+            )
 
     async def load_orders(self):
         self.open_orders = self.exchange_manager.exchange_personal_data.orders_manager.get_open_orders(
@@ -180,7 +246,7 @@ class SpotMaster3000Making(
         )
 
     async def cancel_expired_orders(self):
-        if SpotMasterOrderTypes.LIMIT.value == self.order_type:
+        if spot_master_enums.SpotMasterOrderTypes.LIMIT.value == self.order_type:
             until = int(
                 time.time()
                 - (
@@ -226,24 +292,6 @@ class SpotMaster3000Making(
             filter(lambda symbol: symbol.startswith(coin), self.available_symbols)
         )
 
-    def get_available_amount(
-        self, order_to_execute: TargetAsset
-    ) -> typing.Tuple[decimal.Decimal, decimal.Decimal]:
-        amount = order_to_execute.order_amount
-        try:
-            if order_to_execute.change_side == "sell":
-                available_amount = self.portfolio[order_to_execute.coin].available
-            else:
-                available_amount = (
-                    self.portfolio[order_to_execute.ref_market].available
-                    / order_to_execute.asset_value
-                )
-        except KeyError:
-            available_amount = decimal.Decimal("0")
-        if available_amount < amount:
-            amount = available_amount
-        return available_amount, amount
-
     def round_up_order_amount_if_enabled(
         self,
         available_amount: decimal.Decimal,
@@ -253,19 +301,12 @@ class SpotMaster3000Making(
         order_side: str,
     ) -> decimal.Decimal:
         if self.round_orders:
-            market_status = self.ctx.exchange_manager.exchange.get_market_status(
-                symbol, with_fixer=False
-            )
-            if (original_order_value := order_amount * order_price) <= (
-                fixed_min_value := (
-                    min_value := decimal.Decimal(
-                        str(market_status["limits"]["cost"]["min"])
-                    )
-                )
-                # rounding issue, rounded order size is to small
-                * decimal.Decimal("1.02")
-            ):
-                minimum_amount = fixed_min_value / order_price
+            (
+                min_value,
+                fixed_min_value,
+                minimum_amount,
+            ) = self.get_rounded_min_amount_and_value(symbol, order_price)
+            if (original_order_value := order_amount * order_price) <= fixed_min_value:
                 if not self._check_if_available_funds(
                     available_amount,
                     minimum_amount,
@@ -282,6 +323,21 @@ class SpotMaster3000Making(
                 )
             # dont round
         return order_amount
+
+    def get_rounded_min_amount_and_value(self, symbol, order_price):
+        market_status = self.ctx.exchange_manager.exchange.get_market_status(
+            symbol, with_fixer=False
+        )
+        min_value = decimal.Decimal(str(market_status["limits"]["cost"]["min"] or 0))
+        minimum_amount = decimal.Decimal(
+            str(
+                float_round(
+                    min_value / order_price, market_status["precision"]["amount"]
+                )
+            )
+        )
+        fixed_min_value = minimum_amount * order_price
+        return min_value, fixed_min_value, minimum_amount
 
     def _check_if_available_funds(
         self,
@@ -332,4 +388,8 @@ class SpotMaster3000Making(
         return False
 
     def get_ref_market_from_symbol(self, symbol) -> str:
-        return parse_symbol(symbol).quote
+        return symbol_util.parse_symbol(symbol).quote
+
+
+def float_round(num, places=0, direction=ceil):
+    return direction(num * (10**places)) / float(10**places)

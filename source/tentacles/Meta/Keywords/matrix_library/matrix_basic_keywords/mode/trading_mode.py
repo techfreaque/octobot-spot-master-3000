@@ -3,7 +3,7 @@ import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
-from tentacles.Meta.Keywords.scripting_library.data.writing import plotting
+import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
 class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer):
@@ -31,6 +31,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
 
     # todo remove
     live_recording_mode: bool = None
+    trigger_time_frames: list = None
 
     def __init__(self, channel, config, trading_mode, exchange_manager):
         super().__init__(channel, config, trading_mode, exchange_manager)
@@ -55,12 +56,12 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             activation_topic_values,
         )
 
-    async def build_and_trade_strategies_live(self, ctx):
+    async def build_and_trade_strategies_live(self):
         m_time = utilities.start_measure_time()
 
-        utilities.end_measure_live_time(ctx, m_time, " matrix mode - live trading")
+        utilities.end_measure_live_time(self.ctx, m_time, " matrix mode - live trading")
 
-    async def build_strategies_backtesting_cache(self, ctx):
+    async def build_strategies_backtesting_cache(self):
         s_time = utilities.start_measure_time(
             " matrix mode - building backtesting cache"
         )
@@ -68,10 +69,10 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
         utilities.end_measure_time(
             s_time,
             f" matrix mode - building strategy for "
-            f"{ctx.time_frame} {len(self.any_trading_timestamps)} trades",
+            f"{self.ctx.time_frame} {len(self.any_trading_timestamps)} trades",
         )
 
-    async def trade_strategies_backtesting(self, ctx):
+    async def trade_strategies_backtesting(self):
         m_time = utilities.start_measure_time()
 
         utilities.end_measure_time(

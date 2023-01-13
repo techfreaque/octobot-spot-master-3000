@@ -1,6 +1,6 @@
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import octobot_trading.enums as trading_enums
-from .spot_master_3000_trading_mode import SpotMaster3000Making
+import tentacles.Trading.Mode.spot_master_3000_trading_mode.spot_master_3000_trading_mode as spot_master_3000_trading_mode
 
 
 class SpotMaster3000Mode(abstract_scripted_trading_mode.AbstractScriptedTradingMode):
@@ -26,8 +26,8 @@ class SpotMaster3000Mode(abstract_scripted_trading_mode.AbstractScriptedTradingM
         ]
 
 
-class SpotMaster3000ModeProducer(SpotMaster3000Making):
-    async def _pre_script_call(self, context) -> None:
+class SpotMaster3000ModeProducer(spot_master_3000_trading_mode.SpotMaster3000Making):
+    async def _pre_script_call(self, context, action: dict or str = None) -> None:
         await self.make_strategy(context)
 
     async def make_strategy(self, ctx) -> None:

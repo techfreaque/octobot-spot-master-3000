@@ -1,12 +1,8 @@
 import typing
-
 import octobot_commons.enums as commons_enums
 import octobot_commons.symbols.symbol_util as symbol_util
-import octobot_commons.symbols.symbol as commons_symbol
-
 import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
 import octobot_trading.api.symbol_data as symbol_data
-
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.trading_mode as trading_mode_basis
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import tentacles.Trading.Mode.spot_master_3000_trading_mode.enums as spot_master_enums

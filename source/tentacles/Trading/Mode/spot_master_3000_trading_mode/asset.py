@@ -1,8 +1,5 @@
 import decimal
-
-from tentacles.Trading.Mode.spot_master_3000_trading_mode.enums import (
-    SpotMasterOrderTypes,
-)
+import tentacles.Trading.Mode.spot_master_3000_trading_mode.enums as spot_master_enums
 
 
 class TargetAsset:
@@ -11,6 +8,8 @@ class TargetAsset:
     order_percent: decimal.Decimal = None
     order_value: decimal.Decimal = None
     order_amount: decimal.Decimal = None
+    order_amount_available: decimal.Decimal = None
+    available_amount: decimal.Decimal = 0
     order_execute_price: decimal.Decimal = None
 
     def __init__(
@@ -34,6 +33,7 @@ class TargetAsset:
         open_order_size: decimal.Decimal,
         is_ref_market: bool = False,
     ):
+        self.portfolio: dict = portfolio
         self.open_order_size: decimal.Decimal = open_order_size
         self.coin: str = coin
         self.order_type: str = order_type
@@ -115,13 +115,27 @@ class TargetAsset:
         self.check_if_should_change()
 
     def check_if_should_change(self) -> None:
-        if self.difference_percent < 0:
+        if self.difference_percent < 0 and 0 >= self.open_order_size:
             if self.difference_percent < -(self.threshold_to_sell):
                 self.prepare_sell_order()
 
-        elif self.difference_percent > 0:
+        elif self.difference_percent > 0 and 0 <= self.open_order_size:
             if self.difference_percent > (self.threshold_to_buy):
                 self.prepare_buy_order()
+
+    def set_available_order_amount(self) -> None:
+        self.order_amount_available = self.order_amount
+        try:
+            if self.change_side == "sell":
+                self.available_amount = self.portfolio[self.coin].available
+            else:
+                self.available_amount = (
+                    self.portfolio[self.ref_market].available / self.asset_value
+                )
+        except KeyError:
+            self.available_amount = decimal.Decimal("0")
+        if self.available_amount < self.order_amount:
+            self.order_amount_available = self.available_amount
 
     def prepare_sell_order(self) -> None:
         self.should_change = True
@@ -137,8 +151,9 @@ class TargetAsset:
             self.order_percent, self.portfolio_value
         )
         self.order_amount = convert_value_to_amount(self.order_value, self.asset_value)
-        if self.order_type == SpotMasterOrderTypes.LIMIT.value:
+        if self.order_type == spot_master_enums.SpotMasterOrderTypes.LIMIT.value:
             self.order_execute_price = self.asset_value * (1 + self.limit_sell_offset)
+        self.set_available_order_amount()
 
     def prepare_buy_order(self) -> None:
         self.should_change = True
@@ -154,8 +169,9 @@ class TargetAsset:
             self.order_percent, self.portfolio_value
         )
         self.order_amount = convert_value_to_amount(self.order_value, self.asset_value)
-        if self.order_type == SpotMasterOrderTypes.LIMIT.value:
+        if self.order_type == spot_master_enums.SpotMasterOrderTypes.LIMIT.value:
             self.order_execute_price = self.asset_value * (1 - self.limit_buy_offset)
+        self.set_available_order_amount()
 
 
 def convert_percent_to_decimal(percent) -> decimal.Decimal:
