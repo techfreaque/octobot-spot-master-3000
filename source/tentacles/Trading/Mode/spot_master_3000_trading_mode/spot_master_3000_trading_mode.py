@@ -54,19 +54,10 @@ class SpotMaster3000Making(
         self, ctx: context_management.Context
     ) -> None:
         await self.init_spot_master_settings(ctx)
-        self.portfolio = portfolio.get_portfolio(ctx.exchange_manager)
-        self.total_value = (
-            ctx.exchange_manager.exchange_personal_data.portfolio_manager.portfolio_value_holder.portfolio_current_value
-        )
-        if self.total_value == decimal.Decimal("0"):
-            self.ctx.logger.error(
-                "Portfolio Value is not initialized or 0, this candle will be skipped. "
-                "This is normal if OctoBot just started"
-            )
-            return
-        await self.calculate_target_portfolio()
-        if self.ctx.enable_trading:
-            await self.execute_orders()
+        if self.initialize_portfolio_values():
+            await self.calculate_target_portfolio()
+            if self.ctx.enable_trading:
+                await self.execute_orders()
         await self.init_plot_settings()
         await self.init_plot_portfolio()
         if self.enable_plot:
@@ -113,6 +104,20 @@ class SpotMaster3000Making(
                             side=order_to_execute.change_side,
                             amount=amount,
                         )
+
+    def initialize_portfolio_values(self) -> bool:
+        self.portfolio = portfolio.get_portfolio(self.ctx.exchange_manager)
+        self.total_value = (
+            self.ctx.exchange_manager.exchange_personal_data.portfolio_manager.portfolio_value_holder.portfolio_current_value
+        )
+        if self.total_value == decimal.Decimal("0"):
+            self.ctx.logger.debug(
+                "Portfolio Value is not initialized or 0, "
+                f"this {self.ctx.symbol} candle will be skipped. "
+                "This is normal if OctoBot just started"
+            )
+            return False
+        return True
 
     async def calculate_target_portfolio(self) -> None:
         self.ref_market = self.ctx.top_level_tentacle.config["trading"][
