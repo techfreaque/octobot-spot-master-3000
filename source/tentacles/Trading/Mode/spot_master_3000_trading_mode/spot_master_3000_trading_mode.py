@@ -85,7 +85,7 @@ class SpotMaster3000Making(
                         await order_types.limit(
                             self.ctx,
                             side=order_to_execute.change_side,
-                            amount=order_to_execute.order_amount_available,
+                            amount=amount,
                             offset=f"@{order_to_execute.order_execute_price}",
                         )
                 elif (
@@ -128,8 +128,10 @@ class SpotMaster3000Making(
         await self.cancel_expired_orders()
         await self.load_orders()
         for coin, settings in self.target_settings.items():
+            if not self.ctx.symbol.startswith(coin):
+                continue
             available_symbols: list = self.get_available_symbols(coin)
-            _asset = None
+            _asset: asset.TargetAsset = None
             if not available_symbols:
                 if not (
                     _asset := self.calculate_reference_market_asset(settings, coin)
@@ -145,7 +147,8 @@ class SpotMaster3000Making(
                 )
                 if order_to_execute:
                     self.orders_to_execute[coin] = order_to_execute
-            self.target_portfolio[coin] = _asset
+            if _asset:
+                self.target_portfolio[coin] = _asset
 
     async def calculate_asset(
         self, settings, coin, available_symbols
@@ -157,31 +160,46 @@ class SpotMaster3000Making(
         potential_order: asset.TargetAsset = None
         _asset: asset.TargetAsset = None
         for symbol in available_symbols:
-            this_ref_market: str = symbol_util.parse_symbol(symbol).quote
+            parsed_symbol: str = symbol_util.parse_symbol(symbol)
+            this_ref_market: str = parsed_symbol.quote
             converted_total_value: decimal.Decimal = None
             open_order_size: decimal.Decimal = decimal.Decimal("0")
             if this_ref_market != self.ref_market:
-                potential_conversion_symbols: list = [
-                    f"{this_ref_market}/{self.ref_market}",
+                conversion_symbol = f"{this_ref_market}/{self.ref_market}"
+                conversion_symbol_inverse: list = (
                     f"{self.ref_market}/{this_ref_market}",
-                ]
+                )
+
                 conversion_value: float = None
-                for _symbol in potential_conversion_symbols:
-                    if value := await self.get_asset_value(_symbol):
+                available_symbol = None
+                for available_symbol in (conversion_symbol, conversion_symbol_inverse):
+                    if value := await self.get_asset_value(available_symbol):
                         conversion_value = value
                         break
-                try:
+                if not conversion_value:
+                    if self.ctx.exchange_manager.is_backtesting:
+                        return None, None
+                    raise RuntimeError(
+                        f"Not able to determine value for {parsed_symbol.base} using "
+                        f"{available_symbol} - this candle for {self.ctx.symbol} "
+                        "will be skipped"
+                    )
+                if available_symbol == conversion_symbol:
                     converted_total_value = self.total_value / decimal.Decimal(
                         str(conversion_value)
                     )
-                except Exception as e:
-                    test = e
+                else:
+                    converted_total_value = self.total_value * decimal.Decimal(
+                        str(conversion_value)
+                    )
             open_order_size = self.get_open_order_quantity(symbol)
             if not (asset_value := await self.get_asset_value(symbol)):
-                self.ctx.logger.error(
-                    f"Not able to determine asset  value for {coin} with {symbol}"
-                )
-                continue
+                if coin in self.ctx.symbol:
+                    self.ctx.logger.debug(
+                        f"Not able to determine asset value for {coin} with {symbol} "
+                        f"- this candle for {self.ctx.symbol} will be skipped"
+                    )
+                return None, None
             _asset = asset.TargetAsset(
                 total_value=converted_total_value or self.total_value,
                 target_percent=settings["allocation"],
@@ -203,10 +221,22 @@ class SpotMaster3000Making(
                 open_order_size=open_order_size,
             )
             if potential_order:
-                # TODO use ref market that is closer or higher to optimal %
-                # use the pair with more available funds
-                if _asset.available_amount > potential_order.available_amount:
-                    potential_order = _asset
+                # TODO use ref market that is closer to optimal %
+                if _asset.change_side == "buy":
+                    # use ref market with more available funds
+                    if (
+                        _asset.available_ref_market_in_currency
+                        > potential_order.available_ref_market_in_currency
+                    ):
+                        potential_order = _asset
+                # TODO use ref market that has more difference to optimal %
+                elif _asset.change_side == "sell":
+                    # use ref market with less available funds
+                    if (
+                        _asset.available_ref_market_in_currency
+                        < potential_order.available_ref_market_in_currency
+                    ):
+                        potential_order = _asset
             else:
                 potential_order = _asset
         _asset = potential_order or _asset
@@ -270,7 +300,7 @@ class SpotMaster3000Making(
         open_order_size: decimal.Decimal = decimal.Decimal("0")
         if self.open_orders:
             for order in self.open_orders:
-                if order.symbol == symbol:
+                if order.currency in symbol:
                     if order.side == trading_enums.TradeOrderSide.BUY:
                         open_order_size += order.origin_quantity
                     else:
@@ -337,7 +367,9 @@ class SpotMaster3000Making(
         minimum_amount = decimal.Decimal(
             str(
                 float_round(
-                    min_value / order_price, market_status["precision"]["amount"]
+                    # add 10% to prevent rounding issue
+                    (min_value / order_price) * decimal.Decimal(str(1.1)),
+                    market_status["precision"]["amount"],
                 )
             )
         )

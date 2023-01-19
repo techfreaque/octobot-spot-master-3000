@@ -1,5 +1,7 @@
 import octobot_commons.enums as commons_enums
+from octobot_trading.enums import PositionMode
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
+from octobot_trading.modes.script_keywords.context_management import Context
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
@@ -36,7 +38,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
     def __init__(self, channel, config, trading_mode, exchange_manager):
         super().__init__(channel, config, trading_mode, exchange_manager)
         self.candles_manager: dict = {}
-        self.ctx = None
+        self.ctx: Context = None
         self.candles: dict = {}
 
     async def _register_and_apply_required_user_inputs(self, context):
@@ -55,6 +57,16 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             commons_enums.ActivationTopics.FULL_CANDLES.value,
             activation_topic_values,
         )
+
+    async def init_common_features(self):
+        if self.exchange_manager.is_future:
+            try:
+                await self.exchange_manager.trader.set_position_mode(
+                    self.ctx.symbol, PositionMode.ONE_WAY
+                )
+            except Exception as e:
+                # not important
+                pass
 
     async def build_and_trade_strategies_live(self):
         m_time = utilities.start_measure_time()

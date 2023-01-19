@@ -90,7 +90,9 @@ async def get_current_candle(
         )
         try:
             if isinstance(candles, numpy.ndarray):
-                current_index = numpy.where(times == maker.ctx.trigger_value[0])[0][0]
+                current_index = numpy.where(
+                    numpy.isclose(times, maker.ctx.trigger_value[0])
+                )[0][0]
             else:
                 current_index = times.index(maker.ctx.trigger_value[0])
         except (ValueError, KeyError, IndexError) as error:
@@ -109,30 +111,55 @@ async def _get_candles_from_name(
 ):
     symbol = symbol or maker.ctx.symbol
     time_frame = time_frame or maker.ctx.time_frame
-    if symbol not in maker.candles_manager:
-        maker.candles_manager[symbol] = {}
-    if time_frame not in maker.candles_manager[symbol]:
-        maker.candles_manager[symbol][time_frame] = {}
-    if maker.ctx.exchange_manager.is_backtesting:
-        maker.candles_manager[symbol][time_frame] = maker.candles_manager[symbol][
-            time_frame
-        ] or await _load_candles_manager(maker.ctx, symbol, time_frame, max_history)
-    else:
-        maker.candles_manager[symbol][time_frame] = await _load_candles_manager(
-            maker.ctx, symbol, time_frame, max_history
-        )
+
     if source_name == "close":
-        return maker.candles_manager[symbol][time_frame].get_symbol_close_candles(-1)
+        return await _exchange_public_data.Close(
+            maker.ctx,
+            symbol=symbol,
+            time_frame=time_frame,
+            limit=-1,
+            max_history=max_history,
+        )
     if source_name == "open":
-        return maker.candles_manager[symbol][time_frame].get_symbol_open_candles(-1)
+        return await _exchange_public_data.Open(
+            maker.ctx,
+            symbol=symbol,
+            time_frame=time_frame,
+            limit=-1,
+            max_history=max_history,
+        )
     if source_name == "high":
-        return maker.candles_manager[symbol][time_frame].get_symbol_high_candles(-1)
+        return await _exchange_public_data.High(
+            maker.ctx,
+            symbol=symbol,
+            time_frame=time_frame,
+            limit=-1,
+            max_history=max_history,
+        )
     if source_name == "low":
-        return maker.candles_manager[symbol][time_frame].get_symbol_low_candles(-1)
+        return await _exchange_public_data.Low(
+            maker.ctx,
+            symbol=symbol,
+            time_frame=time_frame,
+            limit=-1,
+            max_history=max_history,
+        )
     if source_name == "volume":
-        return maker.candles_manager[symbol][time_frame].get_symbol_volume_candles(-1)
+        return await _exchange_public_data.Volume(
+            maker.ctx,
+            symbol=symbol,
+            time_frame=time_frame,
+            limit=-1,
+            max_history=max_history,
+        )
     if source_name == "time":
-        return maker.candles_manager[symbol][time_frame].get_symbol_time_candles(-1)
+        return await _exchange_public_data.Time(
+            maker.ctx,
+            symbol=symbol,
+            time_frame=time_frame,
+            limit=-1,
+            max_history=max_history,
+        )
     if source_name == "hl2":
         try:
             from tentacles.Evaluator.Util.candles_util import CandlesUtil
@@ -206,10 +233,10 @@ async def _get_candles_from_name(
                     maker, source_name="close", time_frame=time_frame, symbol=symbol
                 ),
             )
-            maker.candles["Heikin Ashi open"] = haOpen
-            maker.candles["Heikin Ashi high"] = haHigh
-            maker.candles["Heikin Ashi low"] = haLow
-            maker.candles["Heikin Ashi close"] = haClose
+            maker.candles[symbol][time_frame]["Heikin Ashi open"] = haOpen
+            maker.candles[symbol][time_frame]["Heikin Ashi high"] = haHigh
+            maker.candles[symbol][time_frame]["Heikin Ashi low"] = haLow
+            maker.candles[symbol][time_frame]["Heikin Ashi close"] = haClose
             if source_name == "Heikin Ashi close":
                 return haClose
             if source_name == "Heikin Ashi open":

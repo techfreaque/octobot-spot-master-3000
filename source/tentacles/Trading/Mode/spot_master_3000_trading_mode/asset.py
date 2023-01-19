@@ -48,6 +48,14 @@ class TargetAsset:
         self.is_ref_market: str = is_ref_market
         self.asset_value: decimal.Decimal = decimal.Decimal(str(asset_value))
         try:
+            self.available_ref_market_in_currency: decimal.Decimal = (
+                portfolio[ref_market].available / self.asset_value
+            )
+        except KeyError:
+            self.available_ref_market_in_currency: decimal.Decimal = decimal.Decimal(
+                "0"
+            )
+        try:
             self.current_amount = portfolio[coin].total
         except KeyError:
             self.current_amount = decimal.Decimal("0")
