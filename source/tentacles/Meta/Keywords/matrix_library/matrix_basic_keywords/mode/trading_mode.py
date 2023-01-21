@@ -1,10 +1,13 @@
 import octobot_commons.enums as commons_enums
-from octobot_trading.enums import PositionMode
+import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
-from octobot_trading.modes.script_keywords.context_management import Context
+import octobot_trading.modes.script_keywords.context_management as context_management
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
+from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2 import (
+    select_time_frame,
+)
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
@@ -38,7 +41,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
     def __init__(self, channel, config, trading_mode, exchange_manager):
         super().__init__(channel, config, trading_mode, exchange_manager)
         self.candles_manager: dict = {}
-        self.ctx: Context = None
+        self.ctx: context_management.Context = None
         self.candles: dict = {}
 
     async def _register_and_apply_required_user_inputs(self, context):
@@ -57,12 +60,20 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             commons_enums.ActivationTopics.FULL_CANDLES.value,
             activation_topic_values,
         )
+        self.trigger_time_frames = await select_time_frame.set_trigger_time_frames(
+            context
+        )
 
-    async def init_common_features(self):
+    def cancel_non_trigger_time_frames(self):
+        select_time_frame.cancel_non_trigger_time_frames(
+            self.ctx, self.trigger_time_frames
+        )
+
+    async def set_position_mode_to_one_way(self):
         if self.exchange_manager.is_future:
             try:
                 await self.exchange_manager.trader.set_position_mode(
-                    self.ctx.symbol, PositionMode.ONE_WAY
+                    self.ctx.symbol, trading_enums.PositionMode.ONE_WAY
                 )
             except Exception as e:
                 # not important

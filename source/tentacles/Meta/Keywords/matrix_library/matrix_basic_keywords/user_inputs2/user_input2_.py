@@ -1,5 +1,4 @@
 import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
-import octobot_trading.constants as trading_constants
 
 
 async def user_input2(

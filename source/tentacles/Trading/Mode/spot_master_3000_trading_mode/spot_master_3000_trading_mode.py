@@ -18,7 +18,7 @@ import tentacles.Trading.Mode.spot_master_3000_trading_mode.spot_master_3000_tra
 import tentacles.Trading.Mode.spot_master_3000_trading_mode.asset as asset
 
 try:
-    import tentacles.Meta.Keywords.matrix_library.trade_analysis.trade_analysis_activation as trade_analysis_activation
+    import tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.trade_analysis.trade_analysis_activation as trade_analysis_activation
 except (ImportError, ModuleNotFoundError):
     trade_analysis_activation = None
 

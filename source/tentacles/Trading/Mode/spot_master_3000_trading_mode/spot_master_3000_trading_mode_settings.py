@@ -6,11 +6,7 @@ import octobot_trading.api.symbol_data as symbol_data
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.trading_mode as trading_mode_basis
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import tentacles.Trading.Mode.spot_master_3000_trading_mode.enums as spot_master_enums
-
-try:
-    import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
-except (ImportError, ModuleNotFoundError):
-    plotting = None
+import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
 class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
