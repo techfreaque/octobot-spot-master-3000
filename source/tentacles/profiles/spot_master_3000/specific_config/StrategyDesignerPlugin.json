@@ -1,0 +1,12 @@
+{
+    "backtesting_run_settings": {
+        "data_source": "current_bot_data",
+        "end_timestamp": 1671235200000,
+        "exchange_type": "use_current_profile",
+        "start_timestamp": 1514764800000
+    },
+    "current-live-id": 1,
+    "optimization_campaign": {
+        "name": "default spot master 3000"
+    }
+}

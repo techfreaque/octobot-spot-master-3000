@@ -6,7 +6,7 @@ short-name: any_platform.zip
 tags: []
 tentacles:
 - time_frame_strategy_evaluator@1.2.0
-- matrix_basic_keywords@0.5.2
-- spot_master_3000_trading_mode@0.3.0
+- matrix_basic_keywords@0.6.0
+- spot_master_3000_trading_mode@0.5.0
 type: tentacle_package
 version: unknown_version

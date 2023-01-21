@@ -1,6 +1,6 @@
 # octobot spot master 3000
 
-* This is a spot trading mode and a profile for OctoBot
+* This is a spot trading mode for OctoBot
 * Automatically balances your portfolio based on your settings
 * Benefit from arbitrage opportunities between coins and currencies while keeping a well-balanced portfolio.
 * Default settings outperform the market average (based on past data)
@@ -43,14 +43,6 @@ Back testing result for the default settings are in the screenshot's folder in t
 2. on your OctoBot go to my-octobot-url.com/advanced/tentacle\_packages
 3. paste the trading mode package URL (latest version at the bottom)
 4. press on register and install (might take a while)
-
-### import profile
-
-1. go to my-octobot-url.com/profile
-2. click on any profile
-3. click the "import a profile" button at the bottom right
-4. paste the profile URL (latest version at the bottom)
-5. click on "import" (might take a while)
 
 ### duplicate the profile to make it your own
 
@@ -115,7 +107,3 @@ DOGE - BSC (BNB Smart Chain BEP20): 0x7bc06015304f00f5dccc22f009be313eb51396aa
 ## download latest trading mode (installable tentacle version)
 
 https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/trading_mode/latest/any_platform.zip
-
-## download latest profile (importable profile)
-
-https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/profile/latest/spot_master_3000_profile.zip
