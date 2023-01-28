@@ -31,6 +31,11 @@
                     "ETH/USDT"
                 ]
             },
+            "Internet Computer": {
+                "pairs": [
+                    "ICP/USDT"
+                ]
+            },
             "Litecoin": {
                 "enabled": true,
                 "pairs": [
@@ -48,9 +53,26 @@
                 "pairs": [
                     "DOT/USDT"
                 ]
+            },
+            "Polygon": {
+                "pairs": [
+                    "MATIC/USDT"
+                ]
             }
         },
-        "exchanges": {},
+        "exchanges": {
+            "binance": {
+                "enabled": true
+            },
+            "binanceusdm": {
+                "enabled": false,
+                "exchange-type": "future"
+            },
+            "bybit": {
+                "enabled": false,
+                "exchange-type": "future"
+            }
+        },
         "trader": {
             "enabled": false,
             "load-trade-history": true

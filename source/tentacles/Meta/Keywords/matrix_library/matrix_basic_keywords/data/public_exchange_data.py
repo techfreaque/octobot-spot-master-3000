@@ -5,7 +5,7 @@ import octobot_commons.enums as commons_enums
 import octobot_trading.api as trading_api
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2 as user_inputs2
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
-import tentacles.Meta.Keywords.scripting_library.data.reading.exchange_public_data as _exchange_public_data
+import tentacles.Meta.Keywords.scripting_library.data.reading.exchange_public_data as exchange_public_data
 
 
 async def user_select_candle_source_name(
@@ -50,7 +50,7 @@ async def user_select_candle_source_name(
 
 async def get_candles_(maker, source_name="close", time_frame=None, symbol=None):
     symbol = symbol or maker.ctx.symbol
-    time_frame = time_frame or maker.ctx.time_frame
+    time_frame = time_frame or maker.current_indicator_time_frame or maker.ctx.time_frame
     try:
         if maker.ctx.exchange_manager.is_backtesting:
             return maker.candles[symbol][time_frame][source_name]
@@ -101,7 +101,7 @@ async def get_current_candle(
                 f"{symbol}, {time_frame})"
             ) from error
         return candles[current_index]
-    return await _exchange_public_data.current_candle_price(
+    return await exchange_public_data.current_candle_price(
         maker.ctx, symbol=symbol, time_frame=time_frame
     )
 
@@ -113,7 +113,7 @@ async def _get_candles_from_name(
     time_frame = time_frame or maker.ctx.time_frame
 
     if source_name == "close":
-        return await _exchange_public_data.Close(
+        return await exchange_public_data.Close(
             maker.ctx,
             symbol=symbol,
             time_frame=time_frame,
@@ -121,7 +121,7 @@ async def _get_candles_from_name(
             max_history=max_history,
         )
     if source_name == "open":
-        return await _exchange_public_data.Open(
+        return await exchange_public_data.Open(
             maker.ctx,
             symbol=symbol,
             time_frame=time_frame,
@@ -129,7 +129,7 @@ async def _get_candles_from_name(
             max_history=max_history,
         )
     if source_name == "high":
-        return await _exchange_public_data.High(
+        return await exchange_public_data.High(
             maker.ctx,
             symbol=symbol,
             time_frame=time_frame,
@@ -137,7 +137,7 @@ async def _get_candles_from_name(
             max_history=max_history,
         )
     if source_name == "low":
-        return await _exchange_public_data.Low(
+        return await exchange_public_data.Low(
             maker.ctx,
             symbol=symbol,
             time_frame=time_frame,
@@ -145,7 +145,7 @@ async def _get_candles_from_name(
             max_history=max_history,
         )
     if source_name == "volume":
-        return await _exchange_public_data.Volume(
+        return await exchange_public_data.Volume(
             maker.ctx,
             symbol=symbol,
             time_frame=time_frame,
@@ -153,7 +153,7 @@ async def _get_candles_from_name(
             max_history=max_history,
         )
     if source_name == "time":
-        return await _exchange_public_data.Time(
+        return await exchange_public_data.Time(
             maker.ctx,
             symbol=symbol,
             time_frame=time_frame,

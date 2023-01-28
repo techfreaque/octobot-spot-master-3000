@@ -162,7 +162,7 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                 def_val=None,
                 title=f"Settings for {coin}",
                 other_schema_values={
-                    "grid_columns": 12,
+                    "grid_columns": 4,
                 },
                 show_in_summary=False,
             )

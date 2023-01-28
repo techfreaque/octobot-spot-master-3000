@@ -19,6 +19,7 @@ async def user_input2(
         name + f" ({indicator.config_path_short})",
         input_type=input_type,
         def_val=def_val,
+        title=name,
         min_val=min_val,
         max_val=max_val,
         options=options,

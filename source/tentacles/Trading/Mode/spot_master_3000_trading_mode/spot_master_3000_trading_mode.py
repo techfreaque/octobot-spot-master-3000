@@ -9,7 +9,7 @@ import octobot_trading.api.portfolio as portfolio
 import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.context_management as context_management
 
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.exchange_public_data as exchange_public_data
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.public_exchange_data as public_exchange_data
 import tentacles.Meta.Keywords.scripting_library.orders.cancelling as cancelling
 import tentacles.Meta.Keywords.scripting_library.orders.order_types as order_types
 import tentacles.Trading.Mode.spot_master_3000_trading_mode.enums as spot_master_enums
@@ -55,6 +55,7 @@ class SpotMaster3000Making(
     ) -> None:
         await self.init_spot_master_settings(ctx)
         if self.initialize_portfolio_values():
+            self.disable_trading_if_just_started()
             await self.calculate_target_portfolio()
             if self.ctx.enable_trading:
                 await self.execute_orders()
@@ -125,7 +126,8 @@ class SpotMaster3000Making(
         ]
         self.target_portfolio = {}
         self.orders_to_execute = {}
-        await self.cancel_expired_orders()
+        if self.ctx.enable_trading:
+            await self.cancel_expired_orders()
         await self.load_orders()
         for coin, settings in self.target_settings.items():
             if not self.ctx.symbol.startswith(coin):
@@ -309,7 +311,7 @@ class SpotMaster3000Making(
 
     async def get_asset_value(self, symbol: str) -> bool or float:
         try:
-            return await exchange_public_data.get_current_candle(
+            return await public_exchange_data.get_current_candle(
                 self, "close", symbol=symbol
             )
         except (ValueError, KeyError):

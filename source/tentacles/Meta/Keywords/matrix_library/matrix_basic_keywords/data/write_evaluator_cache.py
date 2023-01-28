@@ -1,13 +1,13 @@
 import octobot_commons.enums as commons_enums
 import octobot_commons.constants as commons_constants
-import tentacles.Meta.Keywords.scripting_library.data.reading.exchange_public_data as exchange_public_data
+from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.public_exchange_data import get_candles_
 import numpy as np
 
 
-async def store_evaluator_history(ctx, indicator_values, signals_data,
+async def store_evaluator_history(maker, ctx, indicator_values, signals_data,
                                   plot_enabled=True, additional_values_by_key=None):
     # store it in one go
-    times = await exchange_public_data.Time(ctx, max_history=True)
+    times = await get_candles_(maker, "time", time_frame=maker.ctx.time_frame)
     data_length = len(signals_data)
     times = times[-data_length:]
 
@@ -30,7 +30,7 @@ async def store_evaluator_history(ctx, indicator_values, signals_data,
     await ctx.set_cached_value(value=True, value_key="csh")
 
 
-async def store_indicator_history(ctx, indicator_values, value_key=commons_enums.CacheDatabaseColumns.VALUE.value,
+async def store_indicator_history(maker, indicator_values, value_key=commons_enums.CacheDatabaseColumns.VALUE.value,
                                   additional_values_by_key=None):
     if additional_values_by_key is None:
         additional_values_by_key = {}
@@ -39,15 +39,15 @@ async def store_indicator_history(ctx, indicator_values, value_key=commons_enums
     else:
         round_decimals = 3
     # store it in one go
-    time_data = await exchange_public_data.Time(ctx, max_history=True)
+    time_data = await get_candles_(maker, "time", time_frame=maker.ctx.time_frame)
     cut_t = time_data[-len(indicator_values):]
     if round_decimals:
         indicator_values = np.round(indicator_values, decimals=round_decimals)
         if additional_values_by_key:
             for key in additional_values_by_key:
                 additional_values_by_key[key] = np.round(additional_values_by_key[key], decimals=2)
-    await ctx.set_cached_values(values=indicator_values, cache_keys=cut_t,
+    await maker.ctx.set_cached_values(values=indicator_values, cache_keys=cut_t,
                                 value_key=value_key,
                                 additional_values_by_key=additional_values_by_key)
     # write cache flag on the first candle, cause we dont know on which timestamp the first cached result is
-    await ctx.set_cached_value(value=True, cache_key=time_data[0], value_key="csh")
+    await maker.ctx.set_cached_value(value=True, cache_key=time_data[0], value_key="csh")

@@ -18,8 +18,8 @@ import octobot_commons.time_frame_manager as time_frame_manager
 import octobot_commons.constants as commons_constants
 import octobot_commons.errors as commons_errors
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
-import octobot_evaluators.evaluators as evaluators
-import octobot_evaluators.matrix as matrix
+
+# from tentacles.Meta.Keywords.matrix_library.matrix_strategy_maker_keywords.key_words.backtesting.skip_runs as skip_runs
 
 
 async def set_trigger_time_frames(
@@ -49,21 +49,24 @@ async def set_trigger_time_frames(
 
 def cancel_non_trigger_time_frames(ctx, trigger_timeframes):
     if ctx.time_frame not in trigger_timeframes:
+        # ctx.time_frame == "1d" or
         # if isinstance(ctx.tentacle, evaluators.AbstractEvaluator):
 
-            # For evaluators, make sure that undesired time frames are not in matrix anymore.
-            # Otherwise a strategy might wait for their value before pushing its evaluation to trading modes
-            # matrix.delete_tentacle_node(
-            #     matrix_id=ctx.tentacle.matrix_id,
-            #     tentacle_path=matrix.get_matrix_default_value_path(
-            #         exchange_name=ctx.exchange_manager.exchange_name,
-            #         tentacle_type=ctx.tentacle.evaluator_type.value,
-            #         tentacle_name=ctx.tentacle.get_name(),
-            #         cryptocurrency=ctx.cryptocurrency,
-            #         symbol=ctx.symbol,
-            #         time_frame=ctx.time_frame if ctx.time_frame else None,
-            #     ),
-            # )
+        # For evaluators, make sure that undesired time frames are not in matrix anymore.
+        # Otherwise a strategy might wait for their value before pushing its evaluation to trading modes
+        # matrix.delete_tentacle_node(
+        #     matrix_id=ctx.tentacle.matrix_id,
+        #     tentacle_path=matrix.get_matrix_default_value_path(
+        #         exchange_name=ctx.exchange_manager.exchange_name,
+        #         tentacle_type=ctx.tentacle.evaluator_type.value,
+        #         tentacle_name=ctx.tentacle.get_name(),
+        #         cryptocurrency=ctx.cryptocurrency,
+        #         symbol=ctx.symbol,
+        #         time_frame=ctx.time_frame if ctx.time_frame else None,
+        #     ),
+        # )
+        # if ctx.exchange_manager.is_backtesting:
+        #     skip_runs.register_backtesting_timestamp_whitelist(ctx, [], append_to_whitelist=False)
         raise commons_errors.ExecutionAborted(
             f"Execution aborted: disallowed time frame: {ctx.time_frame}"
         )

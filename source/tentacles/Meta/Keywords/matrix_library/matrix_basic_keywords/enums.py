@@ -8,5 +8,7 @@ class LivePlottingModes(enum.Enum):
 
 
 class BacktestPlottingModes(enum.Enum):
-    DISABLE_PLOTTING = "disable backtest plotting"
-    ENABLE_PLOTTING = "enable backtest plotting"
+    DISABLE_PLOTTING = "disable backtest indicator plotting"
+    ENABLE_PLOTTING = "enable backtest indicator plotting"
+
+CURRENT_TIME_FRAME = "current time frame"

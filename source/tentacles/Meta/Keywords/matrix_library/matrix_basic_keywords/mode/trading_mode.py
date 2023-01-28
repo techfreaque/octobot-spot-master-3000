@@ -1,13 +1,13 @@
+import time
 import octobot_commons.enums as commons_enums
+import octobot_services.interfaces as interfaces
 import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.script_keywords.context_management as context_management
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
-from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2 import (
-    select_time_frame,
-)
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2.select_time_frame as select_time_frame
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
@@ -69,6 +69,13 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             self.ctx, self.trigger_time_frames
         )
 
+    def disable_trading_if_just_started(self):
+        if not self.exchange_manager.is_backtesting:
+            running_seconds = time.time() - interfaces.get_bot_api().get_start_time()
+            if running_seconds > 20:
+                self.ctx.enable_trading = False
+
+        
     async def set_position_mode_to_one_way(self):
         if self.exchange_manager.is_future:
             try:
@@ -114,7 +121,9 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             show_in_summary=False,
             show_in_optimizer=False,
             other_schema_values={
-                "grid_columns": 4,
+                "grid_columns": 12,
+                "description": "Use those options wisely as it will slow "
+                "down the backtesting speed by quit a lot"
             },
         )
         await self.init_plotting_modes(self.plot_settings_name, self.plot_settings_name)
@@ -166,7 +175,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             ):
                 self.enable_plot = False
                 self.live_recording_mode = True
-                plotting.disable_candles_plot(self.ctx)
+                await plotting.disable_candles_plot(self.ctx)
             elif (
                 self.live_plotting_mode
                 == matrix_enums.LivePlottingModes.REPLOT_VISIBLE_HISTORY.value
