@@ -1,4 +1,6 @@
-from tentacles.RunAnalysis.AnalysisMode import DefaultRunAnalysisMode
+from tentacles.Meta.Keywords.matrix_library.RunAnalysis.AnalysisMode import (
+    DefaultRunAnalysisMode,
+)
 
 
 async def script(ctx):
