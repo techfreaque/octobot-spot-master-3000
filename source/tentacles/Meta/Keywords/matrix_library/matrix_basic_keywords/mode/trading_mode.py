@@ -33,6 +33,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
     live_plotting_mode: str = None
 
     enable_plot: bool = False
+    plot_signals: bool = False
 
     # todo remove
     live_recording_mode: bool = None
@@ -72,7 +73,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
     def disable_trading_if_just_started(self):
         if not self.exchange_manager.is_backtesting:
             running_seconds = time.time() - interfaces.get_bot_api().get_start_time()
-            if running_seconds > 20:
+            if running_seconds < 20:
                 self.ctx.enable_trading = False
 
         
@@ -136,6 +137,16 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             title="Backtest plotting mode",
             def_val=self.default_backtest_plotting_mode,
             options=self.backtest_plotting_modes,
+            show_in_summary=False,
+            show_in_optimizer=False,
+            parent_input_name=backtesting_parent_input,
+        )
+        self.plot_signals = await basic_keywords.user_input(
+            self.ctx,
+            "plot_signals",
+            commons_enums.UserInputTypes.BOOLEAN,
+            title="Plot signals",
+            def_val=False,
             show_in_summary=False,
             show_in_optimizer=False,
             parent_input_name=backtesting_parent_input,
