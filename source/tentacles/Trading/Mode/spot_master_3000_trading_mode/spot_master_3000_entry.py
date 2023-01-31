@@ -9,10 +9,16 @@ class SpotMaster3000Mode(abstract_scripted_trading_mode.AbstractScriptedTradingM
         super().__init__(config, exchange_manager)
         self.producer = SpotMaster3000ModeProducer
         if exchange_manager:
-            import backtesting_script
-            import profile_trading_script
-            self.register_script_module(profile_trading_script)
-            self.register_script_module(backtesting_script, live=False)
+            try:
+                import backtesting_script
+                self.register_script_module(backtesting_script, live=False)
+            except (AttributeError, ModuleNotFoundError):
+                pass
+            try:
+                import profile_trading_script
+                self.register_script_module(profile_trading_script)
+            except (AttributeError, ModuleNotFoundError):
+                pass
         else:
             logging.get_logger(self.get_name()).error(
                 "At least one exchange must be enabled to use ScriptedTradingMode"
