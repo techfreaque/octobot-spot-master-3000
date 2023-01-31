@@ -14,7 +14,9 @@ async def user_input2(
     show_in_summary=True,
     show_in_optimizer=True,
     order=None,
+    parent_input_name=None,
 ):
+    parent_input_name = parent_input_name or indicator.config_path_short
     return await user_inputs.user_input(
         maker.ctx,
         f"{indicator.config_path_short}_{name.replace(' ', '_')}",
@@ -27,5 +29,5 @@ async def user_input2(
         show_in_summary=show_in_summary,
         show_in_optimizer=show_in_optimizer,
         order=order,
-        parent_input_name=indicator.config_path_short,
+        parent_input_name=parent_input_name,
     )

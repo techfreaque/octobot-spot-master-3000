@@ -101,9 +101,14 @@ async def get_current_candle(
                 f"{symbol}, {time_frame})"
             ) from error
         return candles[current_index]
-    return await exchange_public_data.current_candle_price(
-        maker.ctx, symbol=symbol, time_frame=time_frame
-    )
+    if source_name == "close":
+        return await exchange_public_data.current_candle_price(
+            maker.ctx, symbol=symbol, time_frame=time_frame
+        )
+    if source_name == "live":
+        return await exchange_public_data.current_live_price(
+            maker.ctx, symbol=symbol
+        )
 
 
 async def _get_candles_from_name(
@@ -251,48 +256,48 @@ async def _get_candles_from_name(
             ) from error
 
 
-async def _load_backtesting_candles_manager(
-    exchange_manager,
-    symbol: str,
-    time_frame: str,
-) -> exchange_data.CandlesManager:
-    start_time = backtesting_api.get_backtesting_starting_time(
-        exchange_manager.exchange.backtesting
-    )
-    end_time = backtesting_api.get_backtesting_ending_time(
-        exchange_manager.exchange.backtesting
-    )
-    ohlcv_data: list = await exchange_manager.exchange.exchange_importers[0].get_ohlcv(
-        exchange_name=exchange_manager.exchange_name,
-        symbol=symbol,
-        time_frame=commons_enums.TimeFrames(time_frame),
-    )
-    chronological_candles: list = sorted(ohlcv_data, key=lambda candle: candle[0])
-    full_candles_history = [
-        ohlcv[-1]
-        for ohlcv in chronological_candles
-        if start_time <= ohlcv[0] <= end_time
-    ]
-    candles_manager = exchange_data.CandlesManager(
-        max_candles_count=len(full_candles_history)
-    )
-    await candles_manager.initialize()
-    candles_manager.replace_all_candles(full_candles_history)
-    return candles_manager
+# async def _load_backtesting_candles_manager(
+#     exchange_manager,
+#     symbol: str,
+#     time_frame: str,
+# ) -> exchange_data.CandlesManager:
+#     start_time = backtesting_api.get_backtesting_starting_time(
+#         exchange_manager.exchange.backtesting
+#     )
+#     end_time = backtesting_api.get_backtesting_ending_time(
+#         exchange_manager.exchange.backtesting
+#     )
+#     ohlcv_data: list = await exchange_manager.exchange.exchange_importers[0].get_ohlcv(
+#         exchange_name=exchange_manager.exchange_name,
+#         symbol=symbol,
+#         time_frame=commons_enums.TimeFrames(time_frame),
+#     )
+#     chronological_candles: list = sorted(ohlcv_data, key=lambda candle: candle[0])
+#     full_candles_history = [
+#         ohlcv[-1]
+#         for ohlcv in chronological_candles
+#         if start_time <= ohlcv[0] <= end_time
+#     ]
+#     candles_manager = exchange_data.CandlesManager(
+#         max_candles_count=len(full_candles_history)
+#     )
+#     await candles_manager.initialize()
+#     candles_manager.replace_all_candles(full_candles_history)
+#     return candles_manager
 
 
-async def _load_candles_manager(
-    context, symbol: str, time_frame: str, max_history: bool = False
-) -> exchange_data.CandlesManager:
-    if max_history and context.exchange_manager.is_backtesting:
-        return await _load_backtesting_candles_manager(
-            context.exchange_manager,
-            symbol,
-            time_frame,
-        )
-    return trading_api.get_symbol_candles_manager(
-        trading_api.get_symbol_data(
-            context.exchange_manager, symbol, allow_creation=False
-        ),
-        time_frame,
-    )
+# async def _load_candles_manager(
+#     context, symbol: str, time_frame: str, max_history: bool = False
+# ) -> exchange_data.CandlesManager:
+#     if max_history and context.exchange_manager.is_backtesting:
+#         return await _load_backtesting_candles_manager(
+#             context.exchange_manager,
+#             symbol,
+#             time_frame,
+#         )
+#     return trading_api.get_symbol_candles_manager(
+#         trading_api.get_symbol_data(
+#             context.exchange_manager, symbol, allow_creation=False
+#         ),
+#         time_frame,
+#     )

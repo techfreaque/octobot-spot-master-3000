@@ -12,6 +12,12 @@ import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotti
 
 
 class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer):
+
+    # TODO remove - find solution
+    INDICATOR_CLASS = None
+
+    consumable_indicator_cache: dict = {}
+
     plot_settings_name = "plot_settings"
     default_live_plotting_mode: str = (
         matrix_enums.LivePlottingModes.PLOT_RECORDING_MODE.value
@@ -76,7 +82,6 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             if running_seconds < 20:
                 self.ctx.enable_trading = False
 
-        
     async def set_position_mode_to_one_way(self):
         if self.exchange_manager.is_future:
             try:
@@ -124,7 +129,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
             other_schema_values={
                 "grid_columns": 12,
                 "description": "Use those options wisely as it will slow "
-                "down the backtesting speed by quit a lot"
+                "down the backtesting speed by quit a lot",
             },
         )
         await self.init_plotting_modes(self.plot_settings_name, self.plot_settings_name)
