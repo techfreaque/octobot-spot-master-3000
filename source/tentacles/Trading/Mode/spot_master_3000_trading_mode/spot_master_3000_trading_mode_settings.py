@@ -60,11 +60,11 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             commons_enums.UserInputTypes.MULTIPLE_OPTIONS,
             def_val=self.available_coins,
             options=self.available_coins,
-            title="Select the coins to trade",
+            title="Select the coins to hold/trade",
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 12,
-                "description": "The reference market must be selected and "
+                "description": "The reference market should be selected and "
                 "make sure the allocation for each coin adds up to 100%. ",
             },
         )
@@ -93,6 +93,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 4,
+                "description": "Whenever a asset reaches the allocation % + "
+                "the threshold %, it will start to sell",
             },
         )
         self.threshold_to_buy = await user_inputs.user_input(
@@ -104,6 +106,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 4,
+                "description": "Whenever a asset reaches the allocation % + "
+                "the threshold %, it will start to buy",
             },
         )
         self.step_to_sell = await user_inputs.user_input(
@@ -115,6 +119,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 4,
+                "description": "Maximum amount to sell in percent, based on total "
+                "portfolio value, for each coin and candle.",
             },
         )
         self.step_to_buy = await user_inputs.user_input(
@@ -126,6 +132,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 4,
+                "description": "Maximum amount to buy in percent, based on total "
+                "portfolio value, for each coin and candle.",
             },
         )
         self.max_buffer_allocation = await user_inputs.user_input(
@@ -137,6 +145,10 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 4,
+                "description": "If a asset allocation is currently higher as the "
+                "defined allocation % + maximum allocation buffer %. It will force "
+                "sell, so you end up with the defined allocation % + "
+                "maximum allocation buffer %.",
             },
         )
         self.min_buffer_allocation = await user_inputs.user_input(
@@ -148,6 +160,10 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 4,
+                "description": "If a asset allocation is currently lower as the "
+                "defined allocation % - minmum allocation buffer %. It will force "
+                "buy, so you end up with the defined allocation % - "
+                "minimum allocation buffer %.",
             },
         )
 
@@ -175,6 +191,10 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                     options=self.available_coins,
                     title="Select the optimal allocation in %",
                     parent_input_name=coin_selector_allocation_name,
+                    other_schema_values={
+                        "grid_columns": 4,
+                        "description": f"Define the optimal amount in percent to hold of {coin}",
+                    },
                 ),
             }
 
@@ -194,7 +214,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                 "grid_columns": 4,
                 "description": "Market orders will get filled emidiatly, "
                 "but have higher fees. While limit orders might not get filled, "
-                "but the fees are cheaper.",
+                "but the fees are cheaper and you can place the order "
+                "below/above the price.",
             },
         )
         if self.order_type == spot_master_enums.SpotMasterOrderTypes.LIMIT.value:
@@ -207,6 +228,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                 parent_input_name=self.spot_master_name,
                 other_schema_values={
                     "grid_columns": 4,
+                    "description": "Whenever a rebalancing gets triggered it will "
+                    "place the buy order X % below the current price",
                 },
             )
             self.limit_sell_offset = await user_inputs.user_input(
@@ -218,6 +241,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                 parent_input_name=self.spot_master_name,
                 other_schema_values={
                     "grid_columns": 4,
+                    "description": "Whenever a rebalancing gets triggered it will "
+                    "place the sell order X % above the current price",
                 },
             )
             self.limit_max_age_in_bars = await user_inputs.user_input(
@@ -230,9 +255,9 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                 parent_input_name=self.spot_master_name,
                 other_schema_values={
                     "grid_columns": 4,
-                    "description": "If the order is still unfilled after the time "
-                    "passed, the order will get cancelled and recreated "
-                    "based on current price",
+                    "description": "If the order is still unfilled after the time is"
+                    "passed, the order will get cancelled and the balance "
+                    "will be available for rebalancing again.",
                 },
             )
         self.round_orders = await user_inputs.user_input(
@@ -244,8 +269,9 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
             parent_input_name=self.spot_master_name,
             other_schema_values={
                 "grid_columns": 4,
-                "description": "If enabled it will round up buy/sell orders to "
-                "the minimum order value. (see below)",
+                "description": "This is only helpful for small balance accounts, if "
+                "enabled it will round up buy/sell orders to the minimum order value "
+                "required by the exchange.",
             },
         )
         if self.round_orders:
