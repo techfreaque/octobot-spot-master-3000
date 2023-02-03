@@ -50,11 +50,12 @@ class SpotMaster3000Making(
     enable_plot_portfolio_p: bool = None
     enable_plot_portfolio_ref: bool = None
 
-    async def build_and_trade_strategies_live(
+    async def execute_rebalancing_strategy(
         self, ctx: context_management.Context
     ) -> None:
         await self.init_spot_master_settings(ctx)
         if self.initialize_portfolio_values():
+            self.allow_trading_only_on_execution(ctx)
             self.disable_trading_if_just_started()
             await self.calculate_target_portfolio()
             if self.ctx.enable_trading:

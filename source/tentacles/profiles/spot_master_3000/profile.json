@@ -71,6 +71,12 @@
             "bybit": {
                 "enabled": false,
                 "exchange-type": "future"
+            },
+            "kraken": {
+                "enabled": false
+            },
+            "kucoin": {
+                "enabled": false
             }
         },
         "trader": {

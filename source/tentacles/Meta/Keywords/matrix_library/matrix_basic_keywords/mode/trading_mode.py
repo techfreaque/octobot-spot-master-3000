@@ -4,14 +4,14 @@ import octobot_services.interfaces as interfaces
 import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.script_keywords.context_management as context_management
-import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2.select_time_frame as select_time_frame
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
-class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer):
+class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProducer):
 
     # TODO remove - find solution
     INDICATOR_CLASS = None
@@ -79,8 +79,19 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScriptedTradingModeProdu
     def disable_trading_if_just_started(self):
         if not self.exchange_manager.is_backtesting:
             running_seconds = time.time() - interfaces.get_bot_api().get_start_time()
-            if running_seconds < 20:
+            if running_seconds < 25:
                 self.ctx.enable_trading = False
+
+    def allow_trading_only_on_execution(self, ctx):
+        if not self.exchange_manager.is_backtesting:
+            if self.action in (
+                matrix_enums.TradingModeCommands.EXECUTE,
+                matrix_enums.TradingModeCommands.OHLC_CALLBACK,
+                matrix_enums.TradingModeCommands.KLINE_CALLBACK,
+            ):
+                ctx.enable_trading = True
+            else:
+                ctx.enable_trading = False
 
     async def set_position_mode_to_one_way(self):
         if self.exchange_manager.is_future:
