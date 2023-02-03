@@ -255,7 +255,8 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
                 parent_input_name=self.spot_master_name,
                 other_schema_values={
                     "grid_columns": 4,
-                    "description": "If the order is still unfilled after the time is"
+                    "description": "This is currently not supported on stock OctoBot. "
+                    "If the order is still unfilled after the time is"
                     "passed, the order will get cancelled and the balance "
                     "will be available for rebalancing again.",
                 },

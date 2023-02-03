@@ -295,9 +295,17 @@ class SpotMaster3000Making(
                     * 60
                 )
             )
-            await cancelling.cancel_orders(
-                self.ctx, symbol=self.ctx.symbol, until=until
-            )
+            try:
+                await cancelling.cancel_orders(
+                    self.ctx, symbol=self.ctx.symbol, until=until
+                )
+            except TypeError:
+                # TODO remove
+                self.ctx.logger.error(
+                    "Not able to cancel epxired orders as this is currently not "
+                    "possible on stock OctoBot. You need to manage order "
+                    "cancelling by yourself"
+                )
 
     def get_open_order_quantity(self, symbol: str):
         open_order_size: decimal.Decimal = decimal.Decimal("0")
