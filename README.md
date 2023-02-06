@@ -115,7 +115,7 @@ DOGE - BSC (BNB Smart Chain BEP20): 0x7bc06015304f00f5dccc22f009be313eb51396aa
 
 ## download latest trading mode (installable tentacle version)
 
-https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/trading_mode/latest/any_platform.zip
+https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/latest/any_platform.zip
 
 ## download latest profile (importable profile)
 
