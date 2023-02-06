@@ -32,10 +32,12 @@ import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as mat
 import async_channel.constants as channel_constants
 import octobot_trading.personal_data as trading_personal_data
 import octobot_trading.exchange_channel as exchanges_channel
-from tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.simple_ping_pong import (
-    play_ping_pong,
-)
-
+try:
+    from tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.simple_ping_pong import (
+        play_ping_pong,
+    )
+except (ImportError, ModuleNotFoundError):
+    play_ping_pong = None
 
 class AbstractScripted2TradingMode(abstract_trading_mode.AbstractTradingMode):
 
@@ -207,16 +209,17 @@ class AbstractScripted2TradingMode(abstract_trading_mode.AbstractTradingMode):
     async def _order_callback(
         self, exchange, exchange_id, cryptocurrency, symbol, order, is_new, is_from_bot
     ):
-        await play_ping_pong(
-            self,
-            exchange,
-            exchange_id,
-            cryptocurrency,
-            symbol,
-            order,
-            is_new,
-            is_from_bot,
-        )
+        if play_ping_pong:
+            await play_ping_pong(
+                self,
+                exchange,
+                exchange_id,
+                cryptocurrency,
+                symbol,
+                order,
+                is_new,
+                is_from_bot,
+            )
 
     def set_initialized_trading_pair_by_bot_id(self, symbol, time_frame, initialized):
         # todo migrate to event tree
