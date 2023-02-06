@@ -1,5 +1,5 @@
 import decimal
-import tentacles.Trading.Mode.spot_master_3000_trading_mode.enums as spot_master_enums
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.spot_master_enums as spot_master_enums
 
 
 class TargetAsset:

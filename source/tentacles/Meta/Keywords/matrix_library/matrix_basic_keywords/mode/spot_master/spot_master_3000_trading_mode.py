@@ -12,10 +12,10 @@ import octobot_trading.modes.script_keywords.context_management as context_manag
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.data.public_exchange_data as public_exchange_data
 import tentacles.Meta.Keywords.scripting_library.orders.cancelling as cancelling
 import tentacles.Meta.Keywords.scripting_library.orders.order_types as order_types
-import tentacles.Trading.Mode.spot_master_3000_trading_mode.enums as spot_master_enums
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.spot_master_enums as spot_master_enums
 
-import tentacles.Trading.Mode.spot_master_3000_trading_mode.spot_master_3000_trading_mode_settings as spot_master_3000_trading_mode_settings
-import tentacles.Trading.Mode.spot_master_3000_trading_mode.asset as asset
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.spot_master_3000_trading_mode_settings as spot_master_3000_trading_mode_settings
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.asset as asset
 
 try:
     import tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.trade_analysis.trade_analysis_activation as trade_analysis_activation
@@ -169,10 +169,7 @@ class SpotMaster3000Making(
             open_order_size: decimal.Decimal = decimal.Decimal("0")
             if this_ref_market != self.ref_market:
                 conversion_symbol = f"{this_ref_market}/{self.ref_market}"
-                conversion_symbol_inverse: list = (
-                    f"{self.ref_market}/{this_ref_market}",
-                )
-
+                conversion_symbol_inverse: list = f"{self.ref_market}/{this_ref_market}"
                 conversion_value: float = None
                 available_symbol = None
                 for available_symbol in (conversion_symbol, conversion_symbol_inverse):

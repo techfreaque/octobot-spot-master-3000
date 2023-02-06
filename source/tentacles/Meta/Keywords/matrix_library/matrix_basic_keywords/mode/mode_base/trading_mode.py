@@ -5,7 +5,7 @@ import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.script_keywords.context_management as context_management
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2.select_time_frame as select_time_frame
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
@@ -17,6 +17,10 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProd
     INDICATOR_CLASS = None
 
     consumable_indicator_cache: dict = {}
+    standalone_indicators: dict = {}
+    initialized_managed_order_settings: dict = {}
+    created_orders_by_id: dict = {}
+    any_ping_pong_mode_active: bool = False
 
     plot_settings_name = "plot_settings"
     default_live_plotting_mode: str = (
@@ -90,6 +94,9 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProd
                 matrix_enums.TradingModeCommands.KLINE_CALLBACK,
             ):
                 ctx.enable_trading = True
+            elif self.action in (matrix_enums.TradingModeCommands.OHLC_CALLBACK,):
+                ctx.enable_trading = True
+                self.disable_trading_if_just_started()
             else:
                 ctx.enable_trading = False
 

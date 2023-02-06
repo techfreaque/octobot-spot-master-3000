@@ -1,2 +1,2 @@
-from .trading_mode import *
-from .abstract_scripted_trading_mode import *
+from .mode_base import *
+from .spot_master import *

@@ -1,6 +1,6 @@
 {
     "installation_context": {
-        "octobot_version": "0.4.35"
+        "octobot_version": "0.4.36"
     },
     "registered_tentacles": {
         "Matrix-Keywords-Bundle": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
@@ -72,19 +72,7 @@
             "matrix_pro_keywords": true,
             "matrix_strategy_maker_keywords": true
         },
-        "RunAnalysis": {
-            "BestCaseGrowth": true,
-            "DefaultRunAnalysisMode": true,
-            "Fees": true,
-            "Positions": true,
-            "RealizeTradeGains": true,
-            "RealizedPortfolio": true,
-            "Trades": true,
-            "UnrealizedPortfolio": true,
-            "WinRates": true,
-            "WinsAndLossesCount": true,
-            "Withdrawals": true
-        },
+        "RunAnalysis": {},
         "Services": {
             "GoogleService": true,
             "GoogleServiceFeed": true,
