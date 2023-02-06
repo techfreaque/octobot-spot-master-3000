@@ -69,7 +69,6 @@
         },
         "Meta": {
             "matrix_basic_keywords": true,
-            "matrix_pro_keywords": true,
             "matrix_strategy_maker_keywords": true
         },
         "RunAnalysis": {},
