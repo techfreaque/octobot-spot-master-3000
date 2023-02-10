@@ -38,7 +38,7 @@ Back testing result for the default settings are in the screenshot's folder in t
 ## Installation
 
 ### install trading mode
-
+* If you are upgrading from any version below 0.6.2 you need to delete all spot master profiles and import the profile again 
 1. To be able to install packages, set a password and enable require password in my-octobot-url.com/accounts -> Interfaces -> Web
 2. on your OctoBot go to my-octobot-url.com/advanced/tentacle\_packages
 3. paste the trading mode package URL (latest version at the bottom)
