@@ -94,7 +94,7 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProd
             if running_seconds < 25:
                 self.ctx.enable_trading = False
 
-    def allow_trading_only_on_execution(self, ctx):
+    def allow_trading_only_on_execution(self, ctx, allow_trading_without_action=True):
         if not self.exchange_manager.is_backtesting:
             if self.action in (
                 matrix_enums.TradingModeCommands.EXECUTE,
@@ -106,7 +106,10 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProd
                 ctx.enable_trading = True
                 self.disable_trading_if_just_started()
             else:
-                ctx.enable_trading = False
+                if allow_trading_without_action:
+                    ctx.enable_trading = True
+                else:
+                    ctx.enable_trading = False
 
     async def set_position_mode_to_one_way(self):
         if self.exchange_manager.is_future:
