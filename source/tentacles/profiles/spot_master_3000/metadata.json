@@ -1,0 +1,12 @@
+{
+  "version": "0.6.2",
+  "origin_package": "Spot-Master-Profile",
+  "tentacles": [
+    "spot_master_profile"
+  ],
+  "tentacles-requirements": [
+    "SpotMaster3000Mode",
+    "TimeFrameStrategyEvaluator",
+    "matrix_basic_keywords"
+  ]
+}
