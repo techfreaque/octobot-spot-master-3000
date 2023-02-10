@@ -13,6 +13,7 @@ import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotti
 
 class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProducer):
 
+    action = None
     # TODO remove - find solution
     INDICATOR_CLASS = None
 
@@ -56,24 +57,31 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProd
         self.candles: dict = {}
 
     async def _register_and_apply_required_user_inputs(self, context):
-        if context.exchange_manager.is_future:
-            await basic_keywords.set_leverage(
-                context, await basic_keywords.user_select_leverage(context)
-            )
+        pass
+        # if context.exchange_manager.is_future:
+        #     await basic_keywords.set_leverage(
+        #         context, await basic_keywords.user_select_leverage(context)
+        #     )
 
-        # register activating topics user input
-        activation_topic_values = [
-            commons_enums.ActivationTopics.FULL_CANDLES.value,
-            commons_enums.ActivationTopics.IN_CONSTRUCTION_CANDLES.value,
-        ]
-        await basic_keywords.get_activation_topics(
-            context,
-            commons_enums.ActivationTopics.FULL_CANDLES.value,
-            activation_topic_values,
-        )
+        # # register activating topics user input
+        # activation_topic_values = [
+        #     commons_enums.ActivationTopics.FULL_CANDLES.value,
+        #     commons_enums.ActivationTopics.IN_CONSTRUCTION_CANDLES.value,
+        # ]
+        # await basic_keywords.get_activation_topics(
+        #     context,
+        #     commons_enums.ActivationTopics.FULL_CANDLES.value,
+        #     activation_topic_values,
+        # )
+        # self.trigger_time_frames = await select_time_frame.set_trigger_time_frames(
+        #     context
+        # )
+
+    async def handle_trigger_time_frame(self):
         self.trigger_time_frames = await select_time_frame.set_trigger_time_frames(
-            context
+            self.ctx
         )
+        self.cancel_non_trigger_time_frames()
 
     def cancel_non_trigger_time_frames(self):
         select_time_frame.cancel_non_trigger_time_frames(

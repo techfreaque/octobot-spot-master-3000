@@ -4,6 +4,7 @@ import time
 import typing
 import octobot_commons.enums as commons_enums
 import octobot_commons.symbols.symbol_util as symbol_util
+import octobot_commons.errors as commons_errors
 
 import octobot_trading.api.portfolio as portfolio
 import octobot_trading.enums as trading_enums
@@ -53,6 +54,10 @@ class SpotMaster3000Making(
     async def execute_rebalancing_strategy(
         self, ctx: context_management.Context
     ) -> None:
+        try:
+            await self.handle_trigger_time_frame()
+        except commons_errors.ExecutionAborted:
+            return
         await self.init_spot_master_settings(ctx)
         if self.initialize_portfolio_values():
             self.allow_trading_only_on_execution(ctx)

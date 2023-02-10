@@ -62,21 +62,8 @@
         },
         "exchanges": {
             "binance": {
-                "enabled": true
-            },
-            "binanceusdm": {
-                "enabled": false,
-                "exchange-type": "future"
-            },
-            "bybit": {
-                "enabled": false,
-                "exchange-type": "future"
-            },
-            "kraken": {
-                "enabled": false
-            },
-            "kucoin": {
-                "enabled": false
+                "enabled": true,
+                "exchange-type": "spot"
             }
         },
         "trader": {
@@ -102,7 +89,7 @@
         "avatar": "matrix-icon.png",
         "description": "This is the default profile for spot master 3000. Duplicate this profile to customize settings",
         "id": "dda285df-035c-446a-9102-e4b11a9d7706",
-        "imported": false,
+        "imported": true,
         "name": "default spot master 3000",
         "origin_url": null,
         "read_only": true

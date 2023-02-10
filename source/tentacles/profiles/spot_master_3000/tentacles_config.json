@@ -3,28 +3,19 @@
         "octobot_version": "0.4.36"
     },
     "registered_tentacles": {
-        "Matrix-Keywords-Bundle": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
-        "Matrix-Library": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
-        "Matrix-Octo-UI2": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
-        "Matrix-Strategies": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
-        "Matrix-Strategy-Maker": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
-        "Matrix-Tentacles": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
         "OctoBot-Default-Tentacles": "",
-        "OctoBot-Private-Tentacles": "",
-        "Semi-Auto-Trading-Mode": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
-        "Spot-Master-3000": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
-        "matrix-strategy-maker": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip"
+        "Spot-Master-3000": "https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/latest/any_platform.zip"
     },
     "tentacle_activation": {
         "Automation": {
-            "CancelOpenOrders": true,
-            "NoCondition": true,
-            "PeriodicCheck": true,
-            "PriceThreshold": true,
-            "ProfitabilityThreshold": true,
-            "SellAllCurrencies": true,
-            "SendNotification": true,
-            "StopTrading": true
+            "CancelOpenOrders": false,
+            "NoCondition": false,
+            "PeriodicCheck": false,
+            "PriceThreshold": false,
+            "ProfitabilityThreshold": false,
+            "SellAllCurrencies": false,
+            "SendNotification": false,
+            "StopTrading": false
         },
         "Backtesting": {
             "ExchangeBotSnapshotCollector": true,
@@ -64,18 +55,14 @@
             "TextAnalysis": true,
             "TimeFrameStrategyEvaluator": true,
             "TrendAnalysis": true,
-            "TwitterNewsEvaluator": false,
-            "trade_analysis": false
+            "TwitterNewsEvaluator": false
         },
         "Meta": {
-            "matrix_basic_keywords": true,
-            "matrix_strategy_maker_keywords": true
+            "matrix_basic_keywords": true
         },
-        "RunAnalysis": {},
         "Services": {
             "GoogleService": true,
             "GoogleServiceFeed": true,
-            "OctoUi2Plugin": true,
             "RedditService": true,
             "RedditServiceFeed": true,
             "StrategyDesignerPlugin": true,
@@ -96,17 +83,13 @@
             "WebService": true
         },
         "Trading": {
-            "ArbitrageProTradingMode": false,
             "ArbitrageTradingMode": false,
             "AscendEx": true,
             "AscendexCCXTWebsocketConnector": true,
             "Binance": true,
             "BinanceCCXTWebsocketConnector": true,
-            "BinanceCoinM": true,
             "BinanceUS": true,
             "BinanceUSCCXTFeedConnector": true,
-            "BinanceUsdM": true,
-            "BinanceUsdMCCXTWebsocketConnector": true,
             "Bitfinex": true,
             "BitfinexCCXTWebsocketConnector": true,
             "Bitget": true,
@@ -135,7 +118,6 @@
             "HuobiCCXTWebsocketConnector": true,
             "HuobiPro": true,
             "HuobiProCCXTWebsocketConnector": true,
-            "IBKR": true,
             "Kraken": true,
             "KrakenCCXTWebsocketConnector": true,
             "Kucoin": true,
@@ -148,12 +130,9 @@
             "PhemexCCXTWebsocketConnector": true,
             "Poloniex": true,
             "RemoteTradingSignalsTradingMode": false,
-            "ScriptedTradingMode": false,
-            "SemiAutoTradingMode": false,
             "SignalTradingMode": false,
             "SpotMaster3000Mode": true,
             "StaggeredOrdersTradingMode": false,
-            "StrategyMakerMode": false,
             "TradingViewSignalsTradingMode": false,
             "UpbitExchange": true,
             "WavesExchange": true,

@@ -539,6 +539,4 @@ class AbstractScripted2TradingModeProducer(modes_channel.AbstractTradingModeProd
             ).set_initialized_flags(initialized, (time_frame,))
 
     async def _pre_script_call(self, context, action: dict or str = None):
-        await basic_keywords.set_leverage(
-            context, await basic_keywords.user_select_leverage(context)
-        )
+        pass

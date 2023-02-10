@@ -1,7 +1,4 @@
 {
-    "Trigger_timeframes": [
-        "1d"
-    ],
     "activation_method": "once per bar close",
     "allocation_for_ADA": {
         "allocation_ADA": 9

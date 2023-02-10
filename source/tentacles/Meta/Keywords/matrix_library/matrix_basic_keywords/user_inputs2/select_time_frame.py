@@ -15,7 +15,6 @@
 #  License along with this library.
 
 import octobot_commons.time_frame_manager as time_frame_manager
-import octobot_commons.constants as commons_constants
 import octobot_commons.errors as commons_errors
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 
@@ -31,17 +30,16 @@ async def set_trigger_time_frames(
             ctx.exchange_manager.exchange_config.get_relevant_time_frames()
         )
     ]
-    def_val = def_val or available_timeframes[0]
-    name = commons_constants.CONFIG_TRIGGER_TIMEFRAMES.replace("_", " ")
+    def_val = def_val or available_timeframes
     trigger_timeframes = await basic_keywords.user_input(
         ctx,
-        name,
-        "multiple-options",
-        def_val,
+        "trading_mode_trigger_time_frames",
+        input_type="multiple-options",
+        def_val=def_val or [],
+        title="Trading mode trigger time frames",
         options=available_timeframes,
         show_in_summary=show_in_summary,
         show_in_optimizer=show_in_optimizer,
-        flush_if_necessary=True,
         order=order,
     )
     return trigger_timeframes
