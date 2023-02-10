@@ -54,6 +54,8 @@ class SpotMaster3000Making(
     async def execute_rebalancing_strategy(
         self, ctx: context_management.Context
     ) -> None:
+        self.ctx = None
+        self.ctx = ctx
         try:
             await self.handle_trigger_time_frame()
         except commons_errors.ExecutionAborted:

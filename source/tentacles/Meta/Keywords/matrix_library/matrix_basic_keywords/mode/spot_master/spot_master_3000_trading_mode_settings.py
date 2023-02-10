@@ -38,8 +38,6 @@ class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
     live_plotting_mode: str = matrix_enums.LivePlottingModes.PLOT_RECORDING_MODE.value
 
     async def init_spot_master_settings(self, ctx) -> None:
-        self.ctx = None
-        self.ctx = ctx
         self.set_available_coins_and_symbols()
         await user_inputs.user_input(
             self.ctx,
