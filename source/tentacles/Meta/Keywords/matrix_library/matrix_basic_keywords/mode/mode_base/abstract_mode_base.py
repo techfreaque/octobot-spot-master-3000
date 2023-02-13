@@ -21,17 +21,16 @@ import octobot_commons.enums as commons_enums
 import octobot_commons.errors as commons_errors
 import octobot_commons.constants as commons_constants
 import octobot_commons.databases as databases
-import octobot_trading.modes.abstract_trading_mode as abstract_trading_mode
-import octobot_trading.modes.channel as modes_channel
 import octobot_trading.modes.script_keywords.context_management as context_management
-import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.modes_util as modes_util
 import octobot_trading.errors as errors
 import octobot_tentacles_manager.api as tentacles_manager_api
+import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
 import async_channel.constants as channel_constants
 import octobot_trading.personal_data as trading_personal_data
 import octobot_trading.exchange_channel as exchanges_channel
+
 try:
     from tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.simple_ping_pong import (
         play_ping_pong,
@@ -39,13 +38,14 @@ try:
 except (ImportError, ModuleNotFoundError):
     play_ping_pong = None
 
-class AbstractScripted2TradingMode(abstract_trading_mode.AbstractTradingMode):
+
+class AbstractScripted2TradingMode(
+    abstract_scripted_trading_mode.AbstractScriptedTradingMode
+):
 
     AVAILABLE_API_ACTIONS = [matrix_enums.TradingModeCommands.EXECUTE]
 
     LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME: dict = {}
-    TRADING_SCRIPT_MODULE = None
-    BACKTESTING_SCRIPT_MODULE = None
     ALLOW_CUSTOM_TRIGGER_SOURCE = True
 
     INITIALIZED_TRADING_PAIR_BY_BOT_ID = {}
@@ -67,14 +67,6 @@ class AbstractScripted2TradingMode(abstract_trading_mode.AbstractTradingMode):
                 "At least one exchange must be enabled to use ScriptedTradingMode"
             )
 
-    def get_current_state(self) -> (str, float):
-        return (
-            super().get_current_state()[0]
-            if self.producers[0].state is None
-            else self.producers[0].state.name,
-            "N/A",
-        )
-
     def get_mode_producer_classes(self) -> list:
         return [AbstractScripted2TradingModeProducer]
 
@@ -94,54 +86,11 @@ class AbstractScripted2TradingMode(abstract_trading_mode.AbstractTradingMode):
             # custom action dict or str
             await self.reload_scripts(action)
 
-    @classmethod
-    # TODO delete when RunAnalysis Mode is stable
-    async def get_backtesting_plot(
-        cls,
-        exchange,
-        symbol,
-        backtesting_id,
-        optimizer_id,
-        optimization_campaign,
-        backtesting_analysis_settings,
-    ):
-        ctx = context_management.Context.minimal(
-            cls,
-            logging.get_logger(cls.get_name()),
-            exchange,
-            symbol,
-            backtesting_id,
-            optimizer_id,
-            optimization_campaign,
-            backtesting_analysis_settings,
-        )
-        return await cls.get_script_from_module(cls.BACKTESTING_SCRIPT_MODULE)(ctx)
-
-    @classmethod
-    def get_is_symbol_wildcard(cls) -> bool:
-        return False
-
-    def get_script(self, live=True):
-        return self._live_script if live else self._backtesting_script
-
-    def register_script_module(self, script_module, live=True):
-        if live:
-            self.__class__.TRADING_SCRIPT_MODULE = script_module
-            self._live_script = self.get_script_from_module(script_module)
-        else:
-            self.__class__.BACKTESTING_SCRIPT_MODULE = script_module
-            self._backtesting_script = self.get_script_from_module(script_module)
-
-    @staticmethod
-    def get_script_from_module(module):
-        return module.script
-
     async def reload_scripts(self, action: str or dict = None):
         for is_live in (False, True):
             if (is_live and self.__class__.TRADING_SCRIPT_MODULE) or (
                 not is_live and self.__class__.BACKTESTING_SCRIPT_MODULE
             ):
-
                 module = (
                     self.__class__.TRADING_SCRIPT_MODULE
                     if is_live
@@ -194,32 +143,33 @@ class AbstractScripted2TradingMode(abstract_trading_mode.AbstractTradingMode):
         :return: the list of consumers created
         """
         consumers = await super().create_consumers()
-        consumers.append(
-            await exchanges_channel.get_chan(
-                trading_personal_data.OrdersChannel.get_name(), self.exchange_manager.id
-            ).new_consumer(
-                self._order_callback,
-                symbol=self.symbol
-                if self.symbol
-                else channel_constants.CHANNEL_WILDCARD,
+        if play_ping_pong:
+            consumers.append(
+                await exchanges_channel.get_chan(
+                    trading_personal_data.OrdersChannel.get_name(),
+                    self.exchange_manager.id,
+                ).new_consumer(
+                    self._order_callback,
+                    symbol=self.symbol
+                    if self.symbol
+                    else channel_constants.CHANNEL_WILDCARD,
+                )
             )
-        )
         return consumers
 
     async def _order_callback(
         self, exchange, exchange_id, cryptocurrency, symbol, order, is_new, is_from_bot
     ):
-        if play_ping_pong:
-            await play_ping_pong(
-                self,
-                exchange,
-                exchange_id,
-                cryptocurrency,
-                symbol,
-                order,
-                is_new,
-                is_from_bot,
-            )
+        await play_ping_pong(
+            self,
+            exchange,
+            exchange_id,
+            cryptocurrency,
+            symbol,
+            order,
+            is_new,
+            is_from_bot,
+        )
 
     def set_initialized_trading_pair_by_bot_id(self, symbol, time_frame, initialized):
         # todo migrate to event tree
@@ -268,84 +218,10 @@ class AbstractScripted2TradingMode(abstract_trading_mode.AbstractTradingMode):
         except KeyError:
             return False
 
-    async def get_additional_metadata(self, _):
-        return {commons_enums.BacktestingMetadata.NAME.value: self.script_name}
 
-
-class AbstractScripted2TradingModeProducer(modes_channel.AbstractTradingModeProducer):
-    def __init__(self, channel, config, trading_mode, exchange_manager):
-        super().__init__(channel, config, trading_mode, exchange_manager)
-
-    async def start(self) -> None:
-        await super().start()
-        # refresh user inputs
-        if not self.exchange_manager.is_backtesting:
-            await self._schedule_initialization_call()
-
-    async def _schedule_initialization_call(self):
-        # initialization call is a special call that does not trigger trades and allows the script
-        # to be run at least once in order to initialize its configuration
-        if self.exchange_manager.is_backtesting:
-            # not necessary in backtesting
-            return
-
-        # fake a full candle call
-        cryptocurrency, symbol, time_frame = self._get_initialization_call_args()
-        # wait for symbol data to be initialized
-        candle = await self._wait_for_symbol_init(symbol, time_frame, 30)
-        if candle is None:
-            self.logger.error(
-                f"Can't initialize trading script: {symbol} {time_frame} candles are not fetched"
-            )
-        await self.ohlcv_callback(
-            self.exchange_name,
-            self.exchange_manager.id,
-            cryptocurrency,
-            symbol,
-            time_frame,
-            candle,
-            init_call=True,
-        )
-
-    async def _wait_for_symbol_init(self, symbol, time_frame, timeout):
-        if not await super()._wait_for_symbol_init(symbol, time_frame, timeout):
-            return None
-        return self._get_latest_full_candle(symbol, time_frame)
-
-    def _get_latest_full_candle(self, symbol, time_frame):
-        tf = commons_enums.TimeFrames(time_frame)
-        candles_manager = (
-            self.exchange_manager.exchange_symbols_data.get_exchange_symbol_data(
-                symbol, allow_creation=False
-            ).symbol_candles[tf]
-        )
-        candle_data = candles_manager.get_candles(5)
-        current_time = self.exchange_manager.exchange.get_exchange_current_time()
-        time_frame_sec = (
-            commons_enums.TimeFramesMinutes[tf] * commons_constants.MINUTE_TO_SECONDS
-        )
-        last_full_candle_time = (
-            current_time - current_time % time_frame_sec - time_frame_sec
-        )
-        for candle in reversed(candle_data):
-            if (
-                candle[commons_enums.PriceIndexes.IND_PRICE_TIME.value]
-                == last_full_candle_time
-            ):
-                return candle
-        # return the candle right before the last (last being in construction)
-        return candle_data[-2]
-
-    def _get_initialization_call_args(self):
-        currency = next(
-            iter(self.exchange_manager.exchange_config.traded_cryptocurrencies)
-        )
-        symbol = self.exchange_manager.exchange_config.traded_cryptocurrencies[
-            currency
-        ][0]
-        time_frame = self.exchange_manager.exchange_config.traded_time_frames[0]
-        return currency, symbol, time_frame.value
-
+class AbstractScripted2TradingModeProducer(
+    abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer
+):
     async def ohlcv_callback(
         self,
         exchange: str,
@@ -401,37 +277,6 @@ class AbstractScripted2TradingModeProducer(modes_channel.AbstractTradingModeProd
                 action=matrix_enums.TradingModeCommands.KLINE_CALLBACK,
                 kline=kline,
             )
-
-    async def set_final_eval(
-        self, matrix_id: str, cryptocurrency: str, symbol: str, time_frame
-    ):
-        await self.call_script(
-            matrix_id,
-            cryptocurrency,
-            symbol,
-            time_frame,
-            commons_enums.ActivationTopics.EVALUATION_CYCLE.value,
-            self._get_latest_eval_time(matrix_id, cryptocurrency, symbol, time_frame),
-        )
-
-    def _get_latest_eval_time(
-        self, matrix_id: str, cryptocurrency: str, symbol: str, time_frame
-    ):
-        try:
-            import octobot_evaluators.matrix as matrix
-            import octobot_evaluators.enums as evaluators_enums
-
-            return matrix.get_latest_eval_time(
-                matrix_id,
-                exchange_name=self.exchange_name,
-                tentacle_type=evaluators_enums.EvaluatorMatrixTypes.SCRIPTED.value,
-                cryptocurrency=cryptocurrency,
-                symbol=symbol,
-                time_frame=time_frame,
-            )
-        except ImportError:
-            self.logger.error("OctoBot-Evaluators is required for a matrix callback")
-            return None
 
     async def call_script(
         self,

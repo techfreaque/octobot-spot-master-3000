@@ -1,2 +1,2 @@
-from .abstract_scripted_trading_mode import *
+from .abstract_mode_base import *
 from .trading_mode import *

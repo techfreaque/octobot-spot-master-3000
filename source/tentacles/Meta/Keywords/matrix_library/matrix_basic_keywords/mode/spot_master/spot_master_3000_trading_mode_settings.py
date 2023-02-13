@@ -9,7 +9,7 @@ import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_ma
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
-class SpotMaster3000ModeSettings(trading_mode_basis.MatrixMode):
+class SpotMaster3000ModeSettings(trading_mode_basis.MatrixModeProducer):
     target_settings: dict = {}
     coins_to_trade: typing.List[str] = []
     ref_market: str = None

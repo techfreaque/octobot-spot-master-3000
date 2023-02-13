@@ -1,17 +1,26 @@
 import time
+import octobot_trading.util as util
 import octobot_commons.enums as commons_enums
 import octobot_services.interfaces as interfaces
 import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.script_keywords.context_management as context_management
+import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_scripted_trading_mode as abstract_scripted_trading_mode
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_mode_base as abstract_mode_base
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2.select_time_frame as select_time_frame
+
+try:
+    from tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.ping_pong_data import (
+        PingPongStorage,
+    )
+except (ImportError, ModuleNotFoundError):
+    PingPongStorage = None
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
-class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProducer):
+class MatrixModeProducer(abstract_mode_base.AbstractScripted2TradingModeProducer):
 
     action = None
     # TODO remove - find solution
@@ -20,7 +29,12 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProd
     consumable_indicator_cache: dict = {}
     standalone_indicators: dict = {}
     initialized_managed_order_settings: dict = {}
-    created_orders_by_id: dict = {}
+    # created_orders_by_id: dict = {}
+    if PingPongStorage:
+        ping_pong_storage: PingPongStorage = PingPongStorage()
+    else:
+        ping_pong_storage = None
+
     any_ping_pong_mode_active: bool = False
 
     plot_settings_name = "plot_settings"
@@ -57,25 +71,23 @@ class MatrixMode(abstract_scripted_trading_mode.AbstractScripted2TradingModeProd
         self.candles: dict = {}
 
     async def _register_and_apply_required_user_inputs(self, context):
-        pass
-        # if context.exchange_manager.is_future:
-        #     await basic_keywords.set_leverage(
-        #         context, await basic_keywords.user_select_leverage(context)
-        #     )
-
-        # # register activating topics user input
-        # activation_topic_values = [
-        #     commons_enums.ActivationTopics.FULL_CANDLES.value,
-        #     commons_enums.ActivationTopics.IN_CONSTRUCTION_CANDLES.value,
-        # ]
-        # await basic_keywords.get_activation_topics(
-        #     context,
-        #     commons_enums.ActivationTopics.FULL_CANDLES.value,
-        #     activation_topic_values,
-        # )
-        # self.trigger_time_frames = await select_time_frame.set_trigger_time_frames(
-        #     context
-        # )
+        if self.trading_mode.ALLOW_CUSTOM_TRIGGER_SOURCE:
+            # register activating topics user input
+            activation_topic_values = [
+                commons_enums.ActivationTopics.FULL_CANDLES.value,
+                commons_enums.ActivationTopics.IN_CONSTRUCTION_CANDLES.value,
+            ]
+            await user_inputs.get_activation_topics(
+                context,
+                commons_enums.ActivationTopics.FULL_CANDLES.value,
+                activation_topic_values,
+            )
+        if context.exchange_manager.is_future:
+            await util.wait_for_topic_init(
+                self.exchange_manager,
+                self.CONFIG_INIT_TIMEOUT,
+                commons_enums.InitializationEventExchangeTopics.CONTRACTS.value,
+            )
 
     async def handle_trigger_time_frame(self):
         self.trigger_time_frames = await select_time_frame.set_trigger_time_frames(
