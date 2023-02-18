@@ -21,6 +21,7 @@ import octobot_commons.enums as commons_enums
 import octobot_commons.errors as commons_errors
 import octobot_commons.constants as commons_constants
 import octobot_commons.databases as databases
+from octobot_trading.modes.script_keywords import basic_keywords
 import octobot_trading.modes.script_keywords.context_management as context_management
 import octobot_trading.modes.modes_util as modes_util
 import octobot_trading.errors as errors
@@ -30,7 +31,6 @@ import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.matrix_enums
 import async_channel.constants as channel_constants
 import octobot_trading.personal_data as trading_personal_data
 import octobot_trading.exchange_channel as exchanges_channel
-from octobot_services.interfaces.util.util import run_in_bot_main_loop
 
 try:
     import tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.simple_ping_pong as simple_ping_pong
@@ -128,7 +128,7 @@ class AbstractBaseMode(abstract_scripted_trading_mode.AbstractScriptedTradingMod
                     await self.start_over_database()
 
     async def start_over_database(self, action: str or dict = None):
-        await modes_util.clear_plotting_cache(self)
+        await clear_plotting_cache(self)
         symbol_db = databases.RunDatabasesProvider.instance().get_symbol_db(
             self.bot_id, self.exchange_manager.exchange_name, self.symbol
         )
@@ -438,3 +438,12 @@ class AbstractBaseModeProducer(
                 logging.get_logger(self.trading_mode.get_name()).exception(
                     error, True, f"Failed to restore ping pong storage - error: {error}"
                 )
+
+# TODO remove when stock octobot is fixed
+async def clear_plotting_cache(trading_mode):
+    await basic_keywords.clear_symbol_plot_cache(
+        databases.RunDatabasesProvider.instance().get_symbol_db(
+            trading_mode.bot_id,
+            trading_mode.exchange_manager.exchange_name, trading_mode.symbol
+        )
+    )
