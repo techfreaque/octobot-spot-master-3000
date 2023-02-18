@@ -37,7 +37,7 @@ try:
     import tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.ping_pong_storage.storage as ping_pong_storage_management
 except (ImportError, ModuleNotFoundError):
     simple_ping_pong = None
-    ping_pong_storage = None
+    ping_pong_storage_management = None
 PING_PONG_STORAGE_LOADING_TIMEOUT = 1000
 
 
