@@ -1,5 +1,5 @@
 {
-  "version": "0.6.3",
+  "version": "0.6.4",
   "origin_package": "Matrix-Basic-Keywords",
   "tentacles": ["matrix_basic_keywords"],
   "tentacles-requirements": []

@@ -4,7 +4,7 @@ import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_ba
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.spot_master_3000_trading_mode as spot_master_3000_trading_mode
 
 
-class SpotMaster3000Mode(abstract_mode_base.AbstractScripted2TradingMode):
+class SpotMaster3000Mode(abstract_mode_base.AbstractBaseMode):
     def __init__(self, config, exchange_manager):
         super().__init__(config, exchange_manager)
         self.producer = SpotMaster3000ModeProducer
@@ -23,7 +23,7 @@ class SpotMaster3000Mode(abstract_mode_base.AbstractScripted2TradingMode):
                 pass
         else:
             logging.get_logger(self.get_name()).error(
-                "At least one exchange must be enabled to use ScriptedTradingMode"
+                "At least one exchange must be enabled to use SpotMaster3000Mode"
             )
 
     def get_mode_producer_classes(self) -> list:
@@ -43,7 +43,6 @@ class SpotMaster3000ModeProducer(spot_master_3000_trading_mode.SpotMaster3000Mak
     async def _pre_script_call(self, context, action: dict or str = None) -> None:
         self.action = action
         await self.make_strategy(context)
-        
 
     async def make_strategy(self, ctx) -> None:
         # if not ctx.exchange_manager.is_backtesting:

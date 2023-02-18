@@ -6,21 +6,15 @@ import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.script_keywords.context_management as context_management
 import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_mode_base as abstract_mode_base
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.matrix_enums as matrix_enums
+from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_mode_base import AbstractBaseModeProducer
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2.select_time_frame as select_time_frame
-
-try:
-    from tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.ping_pong_data import (
-        PingPongStorage,
-    )
-except (ImportError, ModuleNotFoundError):
-    PingPongStorage = None
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
-class MatrixModeProducer(abstract_mode_base.AbstractScripted2TradingModeProducer):
+
+class MatrixModeProducer(AbstractBaseModeProducer):
 
     action = None
     # TODO remove - find solution
@@ -29,11 +23,6 @@ class MatrixModeProducer(abstract_mode_base.AbstractScripted2TradingModeProducer
     consumable_indicator_cache: dict = {}
     standalone_indicators: dict = {}
     initialized_managed_order_settings: dict = {}
-    # created_orders_by_id: dict = {}
-    if PingPongStorage:
-        ping_pong_storage: PingPongStorage = PingPongStorage()
-    else:
-        ping_pong_storage = None
 
     any_ping_pong_mode_active: bool = False
 
@@ -55,9 +44,9 @@ class MatrixModeProducer(abstract_mode_base.AbstractScripted2TradingModeProducer
     ]
 
     backtest_plotting_mode: str = None
-    live_plotting_mode: str = None
+    live_plotting_mode: str = matrix_enums.LivePlottingModes.PLOT_RECORDING_MODE.value
 
-    enable_plot: bool = False
+    enable_plot: bool = True
     plot_signals: bool = False
 
     # todo remove
@@ -69,6 +58,7 @@ class MatrixModeProducer(abstract_mode_base.AbstractScripted2TradingModeProducer
         self.candles_manager: dict = {}
         self.ctx: context_management.Context = None
         self.candles: dict = {}
+
 
     async def _register_and_apply_required_user_inputs(self, context):
         if self.trading_mode.ALLOW_CUSTOM_TRIGGER_SOURCE:

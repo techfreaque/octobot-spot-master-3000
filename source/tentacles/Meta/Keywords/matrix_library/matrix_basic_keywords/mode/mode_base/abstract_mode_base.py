@@ -26,28 +26,28 @@ import octobot_trading.modes.modes_util as modes_util
 import octobot_trading.errors as errors
 import octobot_tentacles_manager.api as tentacles_manager_api
 import octobot_trading.modes.scripted_trading_mode.abstract_scripted_trading_mode as abstract_scripted_trading_mode
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.matrix_enums as matrix_enums
 import async_channel.constants as channel_constants
 import octobot_trading.personal_data as trading_personal_data
 import octobot_trading.exchange_channel as exchanges_channel
+from octobot_services.interfaces.util.util import run_in_bot_main_loop
 
 try:
-    from tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.simple_ping_pong import (
-        play_ping_pong,
-    )
+    import tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.simple_ping_pong as simple_ping_pong
+    import tentacles.Meta.Keywords.matrix_library.matrix_pro_keywords.managed_order_pro.daemons.ping_pong.ping_pong_storage.storage as ping_pong_storage_management
 except (ImportError, ModuleNotFoundError):
-    play_ping_pong = None
+    simple_ping_pong = None
+    ping_pong_storage = None
+PING_PONG_STORAGE_LOADING_TIMEOUT = 1000
 
 
-class AbstractScripted2TradingMode(
-    abstract_scripted_trading_mode.AbstractScriptedTradingMode
-):
+class AbstractBaseMode(abstract_scripted_trading_mode.AbstractScriptedTradingMode):
 
     AVAILABLE_API_ACTIONS = [matrix_enums.TradingModeCommands.EXECUTE]
 
-    LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME: dict = {}
+    last_calls_by_bot_id_and_time_frame: dict = {}
     ALLOW_CUSTOM_TRIGGER_SOURCE = True
-
+    ping_pong_storage: ping_pong_storage_management.PingPongStorage = None
     INITIALIZED_TRADING_PAIR_BY_BOT_ID = {}
 
     def __init__(self, config, exchange_manager):
@@ -64,29 +64,49 @@ class AbstractScripted2TradingMode(
             )
         else:
             logging.get_logger(self.get_name()).error(
-                "At least one exchange must be enabled to use ScriptedTradingMode"
+                "At least one exchange must be enabled to use MatrixTradingMode"
             )
 
     def get_mode_producer_classes(self) -> list:
-        return [AbstractScripted2TradingModeProducer]
+        return [AbstractBaseModeProducer]
 
     async def user_commands_callback(self, bot_id, subject, action, data) -> None:
         # do not call super as reload_config is called by reload_scripts already
         # on RELOAD_CONFIG command
+        self.logger.debug(f"Received {action} command")
+        if action == matrix_enums.TradingModeCommands.EXECUTE:
+            self.logger.debug(
+                f"Triggering trading mode from {action} command with data: {data}"
+            )
+            await self._manual_trigger(data)
         if action == commons_enums.UserCommands.RELOAD_CONFIG.value:
             # also reload script on RELOAD_CONFIG
-            await self.reload_scripts(matrix_enums.TradingModeCommands.SAVE)
+            self.logger.debug("Reloaded configuration")
+            await self.reload_scripts()
         elif action == commons_enums.UserCommands.RELOAD_SCRIPT.value:
-            await self.reload_scripts(matrix_enums.TradingModeCommands.SAVE)
+            await self.reload_scripts()
         elif action == commons_enums.UserCommands.CLEAR_PLOTTING_CACHE.value:
             await modes_util.clear_plotting_cache(self)
         elif action == commons_enums.UserCommands.CLEAR_SIMULATED_ORDERS_CACHE.value:
             await modes_util.clear_simulated_orders_cache(self)
-        elif action:
-            # custom action dict or str
-            await self.reload_scripts(action)
 
-    async def reload_scripts(self, action: str or dict = None):
+    async def _manual_trigger(self, trigger_data):
+        for producer in self.producers:
+            for call_args_by_symbols in self.last_calls_by_bot_id_and_time_frame[
+                self.exchange_manager.bot_id
+            ].values():
+                if self.symbol in call_args_by_symbols:
+                    await producer.call_script(
+                        *call_args_by_symbols[self.symbol],
+                        action=matrix_enums.TradingModeCommands.EXECUTE,
+                    )
+                else:
+                    self.logger.debug(
+                        "Wont't call script as last_calls_by_bot_id_and_time_frame "
+                        f"is not initialized for {self.symbol}."
+                    )
+
+    async def reload_scripts(self):
         for is_live in (False, True):
             if (is_live and self.__class__.TRADING_SCRIPT_MODULE) or (
                 not is_live and self.__class__.BACKTESTING_SCRIPT_MODULE
@@ -102,7 +122,7 @@ class AbstractScripted2TradingMode(
                 await self.reload_config(self.exchange_manager.bot_id)
                 if is_live:
                     # todo cancel and restart live tasks
-                    await self.start_over_database(action)
+                    await self.start_over_database()
 
     async def start_over_database(self, action: str or dict = None):
         await modes_util.clear_plotting_cache(self)
@@ -110,30 +130,29 @@ class AbstractScripted2TradingMode(
             self.bot_id, self.exchange_manager.exchange_name, self.symbol
         )
         symbol_db.set_initialized_flags(False)
+        run_db = databases.RunDatabasesProvider.instance().get_run_db(self.bot_id)
         for producer in self.producers:
             for (
                 time_frame,
                 call_args_by_symbols,
-            ) in self.LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME[
+            ) in self.last_calls_by_bot_id_and_time_frame[
                 self.exchange_manager.bot_id
             ].items():
-                run_db = databases.RunDatabasesProvider.instance().get_run_db(
-                    self.bot_id
-                )
-                await producer.init_user_inputs(False)
-                run_db.set_initialized_flags(False, (time_frame,))
-                await databases.CacheManager().close_cache(
-                    commons_constants.UNPROVIDED_CACHE_IDENTIFIER,
-                    reset_cache_db_ids=True,
-                )
                 if self.symbol in call_args_by_symbols:
+                    await producer.init_user_inputs(False)
+                    run_db.set_initialized_flags(False, (time_frame,))
+                    await databases.CacheManager().close_cache(
+                        commons_constants.UNPROVIDED_CACHE_IDENTIFIER,
+                        reset_cache_db_ids=True,
+                    )
                     await producer.call_script(
-                        *call_args_by_symbols[self.symbol], action=action
+                        *call_args_by_symbols[self.symbol],
+                        action=matrix_enums.TradingModeCommands.SAVE,
                     )
                     await run_db.flush()
                 else:
                     self.logger.debug(
-                        "Wont't call script as LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME "
+                        "Wont't call script as last_calls_by_bot_id_and_time_frame "
                         f"is not initialized for {self.symbol}."
                     )
 
@@ -143,7 +162,7 @@ class AbstractScripted2TradingMode(
         :return: the list of consumers created
         """
         consumers = await super().create_consumers()
-        if play_ping_pong:
+        if simple_ping_pong:
             consumers.append(
                 await exchanges_channel.get_chan(
                     trading_personal_data.OrdersChannel.get_name(),
@@ -160,7 +179,7 @@ class AbstractScripted2TradingMode(
     async def _order_callback(
         self, exchange, exchange_id, cryptocurrency, symbol, order, is_new, is_from_bot
     ):
-        await play_ping_pong(
+        await simple_ping_pong.play_ping_pong(
             self,
             exchange,
             exchange_id,
@@ -219,7 +238,7 @@ class AbstractScripted2TradingMode(
             return False
 
 
-class AbstractScripted2TradingModeProducer(
+class AbstractBaseModeProducer(
     abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer
 ):
     async def ohlcv_callback(
@@ -240,6 +259,16 @@ class AbstractScripted2TradingModeProducer(
                 candle[commons_enums.PriceIndexes.IND_PRICE_TIME.value]
                 + commons_enums.TimeFramesMinutes[commons_enums.TimeFrames(time_frame)]
                 * commons_constants.MINUTE_TO_SECONDS
+            )
+            self.log_last_call_by_exchange_id(
+                matrix_id=self.matrix_id,
+                cryptocurrency=cryptocurrency,
+                symbol=symbol,
+                time_frame=time_frame,
+                trigger_source=commons_enums.ActivationTopics.FULL_CANDLES.value,
+                trigger_cache_timestamp=trigger_time,
+                candle=candle,
+                kline=None,
             )
             await self.call_script(
                 self.matrix_id,
@@ -267,6 +296,18 @@ class AbstractScripted2TradingModeProducer(
         async with self.trading_mode_trigger(), self.trading_mode.remote_signal_publisher(
             symbol
         ):
+            self.log_last_call_by_exchange_id(
+                matrix_id=self.matrix_id,
+                cryptocurrency=cryptocurrency,
+                symbol=symbol,
+                time_frame=time_frame,
+                trigger_source=commons_enums.ActivationTopics.IN_CONSTRUCTION_CANDLES.value,
+                trigger_cache_timestamp=kline[
+                    commons_enums.PriceIndexes.IND_PRICE_TIME.value
+                ],
+                candle=None,
+                kline=kline,
+            )
             await self.call_script(
                 self.matrix_id,
                 cryptocurrency,
@@ -303,49 +344,6 @@ class AbstractScripted2TradingModeProducer(
             kline,
             init_call=init_call,
         )
-        if (
-            self.exchange_manager.bot_id
-            not in self.trading_mode.LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME
-        ):
-            self.trading_mode.LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME = {
-                self.exchange_manager.bot_id: {}
-            }
-        if (
-            time_frame
-            in self.trading_mode.LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME[
-                self.exchange_manager.bot_id
-            ]
-        ):
-            self.trading_mode.LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME[
-                self.exchange_manager.bot_id
-            ][time_frame][symbol] = (
-                matrix_id,
-                cryptocurrency,
-                symbol,
-                time_frame,
-                trigger_source,
-                trigger_cache_timestamp,
-                candle,
-                kline,
-                init_call,
-            )
-        else:
-            self.trading_mode.LAST_CALLS_BY_BOT_ID_AND_TIME_FRAME[
-                self.exchange_manager.bot_id
-            ][time_frame] = {
-                symbol: (
-                    matrix_id,
-                    cryptocurrency,
-                    symbol,
-                    time_frame,
-                    trigger_source,
-                    trigger_cache_timestamp,
-                    candle,
-                    kline,
-                    init_call,
-                )
-            }
-
         context.matrix_id = matrix_id
         context.cryptocurrency = cryptocurrency
         context.symbol = symbol
@@ -370,6 +368,7 @@ class AbstractScripted2TradingModeProducer(
             self.logger.exception(e, True, f"Error when running script: {e}")
         finally:
             if not self.exchange_manager.is_backtesting:
+
                 if context.has_cache(context.symbol, context.time_frame):
                     await context.get_cache().flush()
                 for symbol in self.exchange_manager.exchange_config.traded_symbol_pairs:
@@ -385,3 +384,54 @@ class AbstractScripted2TradingModeProducer(
 
     async def _pre_script_call(self, context, action: dict or str = None):
         pass
+
+    def log_last_call_by_exchange_id(
+        self,
+        matrix_id,
+        cryptocurrency,
+        symbol,
+        time_frame,
+        trigger_source,
+        trigger_cache_timestamp,
+        candle,
+        kline,
+    ):
+        if (
+            self.exchange_manager.bot_id
+            not in self.trading_mode.last_calls_by_bot_id_and_time_frame
+        ):
+            self.trading_mode.last_calls_by_bot_id_and_time_frame[
+                self.exchange_manager.bot_id
+            ] = {}
+        if (
+            time_frame
+            not in self.trading_mode.last_calls_by_bot_id_and_time_frame[
+                self.exchange_manager.bot_id
+            ]
+        ):
+            self.trading_mode.last_calls_by_bot_id_and_time_frame[
+                self.exchange_manager.bot_id
+            ][time_frame] = {}
+
+        self.trading_mode.last_calls_by_bot_id_and_time_frame[
+            self.exchange_manager.bot_id
+        ][time_frame][symbol] = (
+            matrix_id,
+            cryptocurrency,
+            symbol,
+            time_frame,
+            trigger_source,
+            trigger_cache_timestamp,
+            candle,
+            kline,
+        )
+
+    async def start(self):
+        await super().start()
+        if not self.exchange_manager.is_backtesting and ping_pong_storage_management:
+            try:
+                await ping_pong_storage_management.init_ping_pong_storage(self.exchange_manager)
+            except Exception as error:
+                logging.get_logger(self.trading_mode.get_name()).exception(
+                    error, True, f"Failed to restore ping pong storage - error: {error}"
+                )

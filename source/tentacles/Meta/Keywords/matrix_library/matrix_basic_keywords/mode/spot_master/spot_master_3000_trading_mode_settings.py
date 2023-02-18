@@ -4,7 +4,7 @@ import octobot_commons.symbols.symbol_util as symbol_util
 import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
 import octobot_trading.api.symbol_data as symbol_data
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.trading_mode as trading_mode_basis
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.enums as matrix_enums
+import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.matrix_enums as matrix_enums
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.spot_master_enums as spot_master_enums
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
