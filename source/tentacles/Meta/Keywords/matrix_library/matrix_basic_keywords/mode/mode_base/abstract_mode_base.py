@@ -47,7 +47,10 @@ class AbstractBaseMode(abstract_scripted_trading_mode.AbstractScriptedTradingMod
 
     last_calls_by_bot_id_and_time_frame: dict = {}
     ALLOW_CUSTOM_TRIGGER_SOURCE = True
-    ping_pong_storage: ping_pong_storage_management.PingPongStorage = None
+    if ping_pong_storage_management:
+        ping_pong_storage: ping_pong_storage_management.PingPongStorage = None
+    else:
+        ping_pong_storage = None
     INITIALIZED_TRADING_PAIR_BY_BOT_ID = {}
 
     def __init__(self, config, exchange_manager):
