@@ -1,24 +1,23 @@
 import time
+from octobot_services import interfaces
 import octobot_trading.util as util
 import octobot_commons.enums as commons_enums
-import octobot_services.interfaces as interfaces
 import octobot_trading.enums as trading_enums
 import octobot_trading.modes.script_keywords.basic_keywords as basic_keywords
 import octobot_trading.modes.script_keywords.context_management as context_management
 import octobot_trading.modes.script_keywords.basic_keywords.user_inputs as user_inputs
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.matrix_enums as matrix_enums
-from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_mode_base import AbstractBaseModeProducer
+from tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_mode_base import (
+    AbstractBaseModeProducer,
+)
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.tools.utilities as utilities
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.user_inputs2.select_time_frame as select_time_frame
 import tentacles.Meta.Keywords.scripting_library.data.writing.plotting as plotting
 
 
-
 class MatrixModeProducer(AbstractBaseModeProducer):
 
-    action = None
-    # TODO remove - find solution
-    INDICATOR_CLASS = None
+    action: str = None
 
     consumable_indicator_cache: dict = {}
     standalone_indicators: dict = {}
@@ -48,6 +47,7 @@ class MatrixModeProducer(AbstractBaseModeProducer):
 
     enable_plot: bool = True
     plot_signals: bool = False
+    enable_ping_pong: bool = None
 
     # todo remove
     live_recording_mode: bool = None
@@ -58,7 +58,6 @@ class MatrixModeProducer(AbstractBaseModeProducer):
         self.candles_manager: dict = {}
         self.ctx: context_management.Context = None
         self.candles: dict = {}
-
 
     async def _register_and_apply_required_user_inputs(self, context):
         if self.trading_mode.ALLOW_CUSTOM_TRIGGER_SOURCE:
@@ -93,14 +92,13 @@ class MatrixModeProducer(AbstractBaseModeProducer):
     def disable_trading_if_just_started(self):
         if not self.exchange_manager.is_backtesting:
             running_seconds = time.time() - interfaces.get_bot_api().get_start_time()
-            if running_seconds < 25:
+            if running_seconds < 200:
                 self.ctx.enable_trading = False
 
-    def allow_trading_only_on_execution(self, ctx, allow_trading_without_action=True):
+    def allow_trading_only_on_execution(self, ctx, allow_trading_without_action=False):
         if not self.exchange_manager.is_backtesting:
             if self.action in (
                 matrix_enums.TradingModeCommands.EXECUTE,
-                matrix_enums.TradingModeCommands.OHLC_CALLBACK,
                 matrix_enums.TradingModeCommands.KLINE_CALLBACK,
             ):
                 ctx.enable_trading = True

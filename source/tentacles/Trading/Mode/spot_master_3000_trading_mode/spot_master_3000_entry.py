@@ -1,10 +1,12 @@
 import octobot_commons.logging as logging
 import octobot_trading.enums as trading_enums
+from octobot_trading.modes.script_keywords import context_management
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_mode_base as abstract_mode_base
 import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.spot_master_3000_trading_mode as spot_master_3000_trading_mode
 
 
 class SpotMaster3000Mode(abstract_mode_base.AbstractBaseMode):
+    ENABLE_PRO_FEATURES = False
     def __init__(self, config, exchange_manager):
         super().__init__(config, exchange_manager)
         self.producer = SpotMaster3000ModeProducer
@@ -40,18 +42,6 @@ class SpotMaster3000Mode(abstract_mode_base.AbstractBaseMode):
 
 
 class SpotMaster3000ModeProducer(spot_master_3000_trading_mode.SpotMaster3000Making):
-    async def _pre_script_call(self, context, action: dict or str = None) -> None:
+    async def make_strategy(self, ctx: context_management.Context, action: str):
         self.action = action
-        await self.make_strategy(context)
-
-    async def make_strategy(self, ctx) -> None:
-        # if not ctx.exchange_manager.is_backtesting:
-        #     # live trading
         await self.execute_rebalancing_strategy(ctx)
-        # elif not self.trading_mode.get_initialized_trading_pair_by_bot_id(
-        #     ctx.symbol, ctx.time_frame
-        # ):
-        # await self.build_strategies_backtesting_cache(ctx)
-        # else:
-        #     # back-testing on all the other candles
-        #     await self.trade_strategies_backtesting(ctx)

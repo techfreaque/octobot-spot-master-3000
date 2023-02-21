@@ -48,3 +48,19 @@ def get_pre_order_data(exchange_manager, symbol):
         symbol, with_fixer=False
     )
     return fees_currency_side, symbol_market
+
+
+def cut_data_to_same_len(data_set: tuple or list, get_list=False):
+    # data tuple in and out
+    min_len = None
+    cutted_data: list = []
+
+    for data in data_set:
+        _len = len(data)
+        if not min_len or _len < min_len:
+            min_len = _len
+    for data in data_set:
+        cutted_data.append(data[len(data) - min_len :])
+    if get_list or isinstance(data, list):
+        return cutted_data
+    return tuple(cutted_data)
