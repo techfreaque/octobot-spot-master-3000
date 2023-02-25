@@ -97,6 +97,7 @@ class AbstractBaseMode(abstract_scripted_trading_mode.AbstractScriptedTradingMod
             self.logger.info("Real time strategy activated")
         elif action == matrix_enums.TradingModeCommands.DISABLE_REALTIME_STRATEGY:
             self.disable_realtime_strategy()
+            await self.reload_scripts()
             self.logger.info("Real time strategy disabled")
         elif action == commons_enums.UserCommands.RELOAD_CONFIG.value:
             # also reload script on RELOAD_CONFIG
@@ -217,8 +218,6 @@ class AbstractBaseMode(abstract_scripted_trading_mode.AbstractScriptedTradingMod
                     show_in_summary=False,
                     order=1000,
                 )
-                if self.real_time_strategy_data:
-                    self.real_time_strategy_data.clear_strategies_cache()
             else:
                 self.real_time_strategy = False
 

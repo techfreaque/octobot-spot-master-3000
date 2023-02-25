@@ -155,8 +155,10 @@ class MatrixModeProducer(AbstractBaseModeProducer):
             title="Plot settings",
             show_in_summary=False,
             show_in_optimizer=False,
-            other_schema_values={
+            editor_options={
                 "grid_columns": 12,
+            },
+            other_schema_values={
                 "description": "Use those options wisely as it will slow "
                 "down the backtesting speed by quit a lot",
             },
