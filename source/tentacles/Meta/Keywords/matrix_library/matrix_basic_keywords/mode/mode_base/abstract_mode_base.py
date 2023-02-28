@@ -344,6 +344,8 @@ class AbstractBaseMode(abstract_scripted_trading_mode.AbstractScriptedTradingMod
 class AbstractBaseModeProducer(
     abstract_scripted_trading_mode.AbstractScriptedTradingModeProducer
 ):
+    ctx: context_management.Context = None
+
     async def ohlcv_callback(
         self,
         exchange: str,
@@ -455,6 +457,7 @@ class AbstractBaseModeProducer(
         run_data_writer = databases.RunDatabasesProvider.instance().get_run_db(
             self.exchange_manager.bot_id
         )
+        self.ctx = context
         try:
             await self.make_strategy(context, action)
             if (
