@@ -1,12 +1,13 @@
 import octobot_commons.logging as logging
 import octobot_trading.enums as trading_enums
 from octobot_trading.modes.script_keywords import context_management
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.mode_base.abstract_mode_base as abstract_mode_base
-import tentacles.Meta.Keywords.matrix_library.matrix_basic_keywords.mode.spot_master.spot_master_3000_trading_mode as spot_master_3000_trading_mode
+import tentacles.Meta.Keywords.matrix_library.basic_tentacles.basic_modes.mode_base.abstract_mode_base as abstract_mode_base
+import tentacles.Meta.Keywords.matrix_library.basic_tentacles.basic_modes.spot_master.spot_master_3000_trading_mode as spot_master_3000_trading_mode
 
 
 class SpotMaster3000Mode(abstract_mode_base.AbstractBaseMode):
     ENABLE_PRO_FEATURES = False
+
     def __init__(self, config, exchange_manager):
         super().__init__(config, exchange_manager)
         self.producer = SpotMaster3000ModeProducer
