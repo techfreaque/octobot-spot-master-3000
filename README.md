@@ -45,7 +45,8 @@ Back testing result for the default settings are in the screenshot's folder in t
 4. press on register and install (might take a while)
 
 ### import profile
-* This trading mode will only work with this profile or a copy of it
+* Either use a copy of a default profile and switch to spot master mode
+* or import this profile or a copy of it
 1. go to my-octobot-url.com/profile
 2. click on any profile
 3. click the "import a profile" button at the bottom right
