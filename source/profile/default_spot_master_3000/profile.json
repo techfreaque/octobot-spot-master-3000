@@ -1,0 +1,97 @@
+{
+    "config": {
+        "crypto-currencies": {
+            "BNB": {
+                "enabled": true,
+                "pairs": [
+                    "BNB/USDT"
+                ]
+            },
+            "Bitcoin": {
+                "enabled": true,
+                "pairs": [
+                    "BTC/USDT"
+                ]
+            },
+            "Cardano": {
+                "enabled": true,
+                "pairs": [
+                    "ADA/USDT"
+                ]
+            },
+            "Dogecoin": {
+                "enabled": true,
+                "pairs": [
+                    "DOGE/USDT"
+                ]
+            },
+            "Ethereum": {
+                "enabled": true,
+                "pairs": [
+                    "ETH/USDT"
+                ]
+            },
+            "Internet Computer": {
+                "pairs": [
+                    "ICP/USDT"
+                ]
+            },
+            "Litecoin": {
+                "enabled": true,
+                "pairs": [
+                    "LTC/USDT"
+                ]
+            },
+            "Monero": {
+                "enabled": true,
+                "pairs": [
+                    "XMR/USDT"
+                ]
+            },
+            "Polkadot": {
+                "enabled": true,
+                "pairs": [
+                    "DOT/USDT"
+                ]
+            },
+            "Polygon": {
+                "pairs": [
+                    "MATIC/USDT"
+                ]
+            }
+        },
+        "exchanges": {
+            "binance": {
+                "enabled": true,
+                "exchange-type": "spot"
+            }
+        },
+        "trader": {
+            "enabled": false,
+            "load-trade-history": true
+        },
+        "trader-simulator": {
+            "enabled": true,
+            "fees": {
+                "maker": 0.01,
+                "taker": 0.06
+            },
+            "starting-portfolio": {
+                "USDT": 10000
+            }
+        },
+        "trading": {
+            "reference-market": "USDT",
+            "risk": 0.5
+        }
+    },
+    "profile": {
+        "avatar": "matrix-icon.png",
+        "description": "This is the default profile for spot master 3000. Duplicate this profile to customize settings",
+        "id": "default_spot_master_3000",
+        "imported": true,
+        "name": "default spot master 3000",
+        "origin_url": "https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/profile/latest/spot_master_3000_profile.zip",
+        "read_only": false
+    }
+}
