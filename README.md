@@ -39,9 +39,15 @@ Back testing result for the default settings are in the screenshot's folder in t
 ## Installation
 
 ### install trading mode
-* If you are upgrading from any version below 0.6.2 you need to delete all spot master profiles and import the profile again 
+* If you are upgrading from any version below 0.6.2 you need to delete all spot master profiles and import the profile again or use a copy of a default profile
+
+#### Install with [octo ui2](https://github.com/techfreaque/octo-ui-2/)
+1. follow the installation instructions to install [octo ui2](https://github.com/techfreaque/octo-ui-2/)
+2. Use the included package manager to install spot master 3000
+
+#### install without [octo ui2](https://github.com/techfreaque/octo-ui-2/)
 1. To be able to install packages, set a password and enable require password in my-octobot-url.com/accounts -> Interfaces -> Web
-2. on your OctoBot go to my-octobot-url.com/advanced/tentacle\_packages
+2. on your OctoBot instance go to my-octobot-url.com/advanced/tentacle\_packages
 3. paste the trading mode package URL (latest version at the bottom)
 4. press on register and install (might take a while)
 
