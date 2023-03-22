@@ -10,10 +10,11 @@
 1. Follow the installation instructions below
 2. Research the coins/currencies you want to hold, the gains will highly depend on your choice.
 3. Enable your coins in the profile -> currencies settings
-4. Go to: my-octobot-url.com/config\_tentacle?name=SpotMaster3000Mode
-5. Define the allocation for each currency (make sure it adds up to 100%)
-6. Make sure the reference market (for example USDT) allocation is big enough (5%-30%)
-7. Customize settings - there are some more settings that will drastically change the outcome. I haven't tested much jet, so be creative and back test your settings.
+4. Make sure each symbol has a direct or indirect pair to the reference market asset ( see Profile -> Trading)
+5. Go to: my-octobot-url.com/config\_tentacle?name=SpotMaster3000Mode or use [octo ui2](https://github.com/techfreaque/octo-ui-2/) to configre the strategy
+6. Define the allocation for each currency (make sure it adds up to 100%)
+7. Make sure the reference markets (for example USDT and BTC) allocation are big enough (5%-30% each)
+8. Customize settings - there are some more settings that will drastically change the outcome. I haven't tested much jet, so be creative and back test your settings.
 
 ## Share your settings
 
@@ -32,7 +33,7 @@ If you find good settings, it would be awesome if you could share it with us!
 * paste your profile config JSON&#x20;
 
 ## Back testing results
-
+* the results are outdate and from an old version
 Back testing result for the default settings are in the screenshot's folder in this repository.
 
 ## Installation
@@ -62,11 +63,18 @@ duplicate the default spot master 3000 profile, so your profile will not get ove
 
 To edit the settings either:
 
-* go to: my-octobot-url.com/config\_tentacle?name=SpotMaster3000Mode
+* use [octo ui2](https://github.com/techfreaque/octo-ui-2/) to configre the strategy
+* or go to: my-octobot-url.com/config\_tentacle?name=SpotMaster3000Mode
 * or configure the trading mode from the profile page
 
-## update
 
+## Update spot master 3000
+### Update with octo ui2
+1. Inside octo ui2 click on the menu and go to the package manager
+2. Click the update button to download the latest stable or beta version
+3. Restart octobot to apply the changes
+
+## Update with stock octobot
 1. go to my-octobot-url.com/advanced/tentacles
 2. select the Spot-Master-3000 package
 3. scroll to the bottom and press "update selected tentacles"
