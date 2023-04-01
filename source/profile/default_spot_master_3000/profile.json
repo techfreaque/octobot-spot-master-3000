@@ -87,11 +87,13 @@
     },
     "profile": {
         "avatar": "matrix-icon.png",
+        "complexity": 2,
         "description": "This is the default profile for spot master 3000. Duplicate this profile to customize settings",
         "id": "default_spot_master_3000",
         "imported": true,
         "name": "default spot master 3000",
         "origin_url": "https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/profile/latest/spot_master_3000_profile.zip",
-        "read_only": false
+        "read_only": false,
+        "risk": 2
     }
 }
