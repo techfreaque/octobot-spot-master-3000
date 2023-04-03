@@ -89,6 +89,9 @@ To edit the settings either:
 
 Post it here: https://github.com/techfreaque/octobot-spot-master-3000/issues
 
+## Change Log
+(You can find the change log here)[https://github.com/techfreaque/octobot-spot-master-3000/commits/main]
+
 ## License: GPL
 
 If you decide to customize my code, please note that it is licensed under the GNU General Public License (GPL). This means that you have the right to use, modify, and distribute the code as long as you also distribute any modified versions under the same GPL license. If you would like to contribute your modifications back to the original codebase, please open a pull request on the repository. This allows the community to review and potentially merge your changes, while also ensuring that any improvements or modifications are shared with others. Thank you for considering using my code, and I hope it serves you well.
