@@ -6,6 +6,7 @@
         "Lorentzian-Classification": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
         "Matrix-Library": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
         "Matrix-Octo-UI2": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
+        "Matrix-Octo-UI2-Pro": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
         "Matrix-Pro-Tentacles": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
         "Matrix-Strategies": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
         "Matrix-Strategy-Maker": "C:/Users/Max1/Desktop/projects/Octobot-Project/tentacle_zips/any_platform.zip",
@@ -48,7 +49,6 @@
             "InstantMAEvaluator": false,
             "KlingerOscillatorMomentumEvaluator": false,
             "KlingerOscillatorReversalConfirmationMomentumEvaluator": false,
-            "LorentzianClassificationEvaluator": false,
             "MACDMomentumEvaluator": false,
             "MoveSignalsStrategyEvaluator": false,
             "OverallStateAnalyser": true,
@@ -71,6 +71,7 @@
             "trade_analysis": false
         },
         "Meta": {
+            "RunAnalysis": true,
             "basic_tentacles": true,
             "pro_tentacles": true
         },
@@ -80,10 +81,10 @@
             "GoogleService": true,
             "GoogleServiceFeed": true,
             "OctoUi2Plugin": true,
+            "OctoUi2ProPlugin": true,
             "RedditService": true,
             "RedditServiceFeed": true,
             "RunAnalysisModePlugin": true,
-            "StrategyDesignerPlugin": true,
             "TelegramApiService": true,
             "TelegramApiServiceFeed": true,
             "TelegramBotInterface": true,

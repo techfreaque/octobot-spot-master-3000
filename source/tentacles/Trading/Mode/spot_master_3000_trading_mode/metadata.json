@@ -1,5 +1,5 @@
 {
-  "version": "0.8.4",
+  "version": "0.8.5",
   "origin_package": "Spot-Master-3000",
   "tentacles": ["SpotMaster3000Mode"],
   "tentacles-requirements": ["TimeFrameStrategyEvaluator", "basic_tentacles"]

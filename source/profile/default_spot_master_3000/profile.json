@@ -93,7 +93,7 @@
         "imported": true,
         "name": "default spot master 3000",
         "origin_url": "https://raw.githubusercontent.com/techfreaque/octobot-spot-master-3000/main/releases/profile/latest/spot_master_3000_profile.zip",
-        "read_only": false,
+        "read_only": true,
         "risk": 2
     }
 }
