@@ -16,22 +16,6 @@
 7. Make sure the reference markets (for example USDT and BTC) allocation are big enough (5%-30% each)
 8. Customize settings - there are some more settings that will drastically change the outcome. I haven't tested much jet, so be creative and back test your settings.
 
-## Share your settings
-
-If you find good settings, it would be awesome if you could share it with us!
-
-### How to share your settings
-
-1. Go to: my-octobot-url.com/config\_tentacle?name=SpotMaster3000Mode
-2.  Copy the profile config JSON
-
-    <figure><img src=".gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
-3. [create a new issue here](https://github.com/techfreaque/octobot-spot-master-3000/issues/new):
-
-* give it a title
-* paste screenshots from your back testing result
-* paste your profile config JSON&#x20;
-
 ## Back testing results
 * the results are outdate and from an old version
 Back testing result for the default settings are in the screenshot's folder in this repository.

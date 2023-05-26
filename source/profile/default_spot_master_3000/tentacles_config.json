@@ -65,7 +65,7 @@
             "TelegramChannelSignalEvaluator": false,
             "TelegramSignalEvaluator": false,
             "TextAnalysis": true,
-            "TimeFrameStrategyEvaluator": false,
+            "TimeFrameStrategyEvaluator": true,
             "TrendAnalysis": true,
             "TwitterNewsEvaluator": false,
             "trade_analysis": false
